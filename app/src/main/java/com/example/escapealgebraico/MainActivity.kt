@@ -240,7 +240,41 @@ fun PantallaInformacion(navController: NavHostController, nombre: String) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Color.Black),
+
+        bottomBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(
+                        onClick = { navController.popBackStack() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF00FF00),
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
+                    }
+
+                    Button(
+                        onClick = { navController.navigate("niveles") },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF00FF00),
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("Ir a Jugar ➡️", style = MaterialTheme.typography.bodyLarge)
+                    }
+                }
+            }
+        }
     ) { innerPadding ->
 
         Column(
@@ -253,7 +287,6 @@ fun PantallaInformacion(navController: NavHostController, nombre: String) {
             verticalArrangement = Arrangement.Top
         ) {
 
-            // Si se ingresó el nombre, se muestra un saludo
             if (nombre.isNotBlank()) {
                 Text(
                     "¡Bienvenido, ${nombre.trim()}!",
@@ -274,7 +307,7 @@ fun PantallaInformacion(navController: NavHostController, nombre: String) {
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 "🟩 Nivel 1: Sumas y Restas (6 a 8 años)\n" +
                         "Comienza la aventura resolviendo sumas y restas simples. Cada respuesta correcta abre un camino nuevo. ¡Perfecto para entrar en ritmo!\n\n" +
@@ -299,40 +332,6 @@ fun PantallaInformacion(navController: NavHostController, nombre: String) {
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Button(
-                        onClick = { navController.navigateUp() },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF00FF00),
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
-                    }
-
-                    Button(
-                        onClick = { navController.navigate("niveles") },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF00FF00),
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Text("Ir a Jugar ➡️", style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

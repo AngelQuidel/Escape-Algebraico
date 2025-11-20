@@ -50,7 +50,7 @@ fun PantallaNivel2(navController: NavHostController) {
         ) {
 
             Text(
-                "🔥 Nivel 2: Multiplica o Divide para Avanzar",
+                "🔥Nivel 2: Multiplica o Divide para Avanzar",
                 color = textoColor,
                 fontFamily = FontFamily.Monospace,
                 style = MaterialTheme.typography.titleLarge,
