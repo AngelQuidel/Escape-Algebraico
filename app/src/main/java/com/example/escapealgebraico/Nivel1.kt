@@ -43,17 +43,19 @@ fun PantallaNivel1(navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 88.dp), // dejar espacio para los botones inferiores
+                .padding(WindowInsets.statusBars.asPaddingValues()) // 👈 ESTA LÍNEA ARREGLA EL PROBLEMA
+                .padding(bottom = 88.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
-        ) {
+        )
+        {
 
             Text(
                 "🦖 Nivel 1: Consigue la llave y llega a la carne 🍖",
                 color = textoColor,
                 fontFamily = FontFamily.Monospace,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 24.dp) // antes era 16dp
             )
 
             Spacer(modifier = Modifier.height(12.dp))

@@ -43,9 +43,10 @@ fun PantallaNivel2(navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 120.dp),
+                .padding(WindowInsets.statusBars.asPaddingValues())
+                .padding(bottom = 88.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.Top
         ) {
 
             Text(
@@ -53,7 +54,7 @@ fun PantallaNivel2(navController: NavHostController) {
                 color = textoColor,
                 fontFamily = FontFamily.Monospace,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 24.dp) // antes era 16dp
             )
 
             Spacer(modifier = Modifier.height(8.dp))
