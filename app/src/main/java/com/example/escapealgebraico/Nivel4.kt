@@ -112,7 +112,6 @@ fun PantallaNivel4(navController: NavHostController) {
                     Text("¡Entendido!", fontFamily = FontFamily.Monospace)
                 }
             }
-
             return@Scaffold
         }
 

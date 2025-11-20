@@ -8,9 +8,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.Pair
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.text.font.FontFamily
 
 fun puedeMoverse(mapa: List<List<String>>, nuevaPos: Pair<Int, Int>): Boolean {
     val (x, y) = nuevaPos

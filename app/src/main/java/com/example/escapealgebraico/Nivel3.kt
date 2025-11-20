@@ -240,7 +240,9 @@ fun PantallaNivel3(navController: NavHostController) {
                             mensaje = ""
                             mostrarInstrucciones = true
 
-                            navController.popBackStack()
+                            navController.navigate("niveles") {
+                                popUpTo("nivel3") { inclusive = true }
+                            }
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = botonColor,
@@ -264,7 +266,6 @@ fun PantallaNivel3(navController: NavHostController) {
                 Button(
                     onClick = {
 
-
                         mapa = generarMapaNivel3()
                         jugadorPos = Pair(1, 1)
                         llavesObtenidas = 0
@@ -273,7 +274,10 @@ fun PantallaNivel3(navController: NavHostController) {
                         mensaje = ""
                         mostrarInstrucciones = true
 
-                        navController.popBackStack()
+                        navController.navigate("niveles") {
+                            popUpTo("nivel3") { inclusive = true }
+                        }
+
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = botonColor,
@@ -345,9 +349,6 @@ fun PreguntaMatematicaNivel3(textoColor: Color, isDark: Boolean, onRespuesta: (B
             }
         }
 
-        // -----------------------------
-        // NÚMEROS CON DIVISIÓN EXACTA
-        // -----------------------------
         val nums = MutableList(4) { (2..20).random() }
 
         val divisor = (2..10).random()

@@ -12,9 +12,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.escapealgebraico.ControlesMovimiento
-import com.example.escapealgebraico.puedeMoverse
-import com.example.escapealgebraico.SoundManager
 import com.example.escapealgebraico.utils.ProgressManager
 
 @Composable
@@ -43,7 +40,6 @@ fun PantallaNivel1(navController: NavHostController) {
             .background(fondoColor)
     ) {
 
-        // Contenido principal: título, mapa, mensajes y preguntas.
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -85,7 +81,6 @@ fun PantallaNivel1(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Mensaje informativo
             Text(
                 mensaje,
                 color = textoColor,
@@ -95,9 +90,7 @@ fun PantallaNivel1(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Pregunta / Controles
             if (mostrarPregunta) {
-                // Mostramos la pregunta en el mismo estilo que usas en Niveles 3/4/5
                 PreguntaMatematica(
                     textoColor = textoColor,
                     isDark = isDark,
@@ -125,7 +118,6 @@ fun PantallaNivel1(navController: NavHostController) {
                 )
             } else {
 
-                // Controles de movimiento (tu implementación externa)
                 ControlesMovimiento(
                     onMove = { dx, dy ->
                         val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
@@ -144,7 +136,6 @@ fun PantallaNivel1(navController: NavHostController) {
                                         mensaje = "🎉 ¡Ganaste el Nivel 1!"
                                         nivelCompletado = true
 
-                                        // Guardar progreso y preparar siguiente nivel
                                         ProgressManager.guardarNivel(context, 2)
                                     } else {
                                         mensaje =
@@ -160,13 +151,11 @@ fun PantallaNivel1(navController: NavHostController) {
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        // BOTONES INFERIORES: siempre abajo. Si no completado -> solo "Volver".
-        // Si completado -> mostrar fila con los dos botones juntos (Volver + Siguiente).
         if (!nivelCompletado) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 32.dp)   // Los sube y se ven en todos los celulares
+                    .padding(bottom = 32.dp)
                     .align(Alignment.BottomCenter),
                 contentAlignment = Alignment.Center
             ) {
@@ -191,7 +180,7 @@ fun PantallaNivel1(navController: NavHostController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 32.dp)   // Subido y estable
+                    .padding(bottom = 32.dp)
                     .align(Alignment.BottomCenter),
                 contentAlignment = Alignment.Center
             ) {

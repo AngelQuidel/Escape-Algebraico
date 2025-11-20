@@ -14,9 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlin.math.round
 import com.example.escapealgebraico.utils.ProgressManager
-import com.example.escapealgebraico.SoundManager
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun PantallaNivel5(navController: NavHostController) {

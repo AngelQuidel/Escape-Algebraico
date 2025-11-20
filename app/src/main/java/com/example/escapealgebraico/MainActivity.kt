@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -15,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -81,6 +85,7 @@ class MainActivity : ComponentActivity() {
 fun PantallaInicio(navController: NavHostController) {
     var nombre by rememberSaveable { mutableStateOf("") }
     var saludoVisible by rememberSaveable { mutableStateOf(false) }
+    val scale = remember { Animatable(0.5f) }
 
     val isDark = isSystemInDarkTheme()
 
@@ -88,115 +93,142 @@ fun PantallaInicio(navController: NavHostController) {
     val placeholderColor = if (isDark) Color.Gray else Color.DarkGray
     val borderColor = if (isDark) Color.Gray else Color.Black
 
+    LaunchedEffect(Unit) {
+        scale.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = 900,
+                easing = FastOutSlowInEasing
+            )
+        )
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
     ) { innerPadding ->
-        Column(
+
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
 
-            Text(
-                "ESCAPE ALGEBRAICO",
-                color = Color(0xFF00FF00),
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontFamily = FontFamily.Monospace
-                )
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher),
-                contentDescription = "Imagen",
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(400.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = nombre,
-                onValueChange = { nombre = it },
-                label = { Text("Ingresar nombre", fontSize = 22.sp, color = textColor) },
-                placeholder = { Text("", fontSize = 22.sp, color = placeholderColor) },
-                singleLine = true,
-                textStyle = TextStyle(
-                    color = textColor,
-                    fontSize = 24.sp
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-                    .padding(horizontal = 4.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF00FF00),
-                    unfocusedBorderColor = borderColor,
-                    focusedLabelColor = Color(0xFF00FF00),
-                    unfocusedLabelColor = textColor,
-                    cursorColor = textColor,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent
-                )
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = {
-                    if (nombre.isNotBlank()) saludoVisible = true
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF00FF00),
-                    contentColor = Color.Black
-                ),
-                modifier = Modifier.fillMaxWidth()
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .scale(scale.value),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Text("Aceptar nombre", style = MaterialTheme.typography.bodyLarge)
-            }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (saludoVisible) {
                 Text(
-                    text = "¡Bienvenido, ${nombre.trim()}!",
+                    "ESCAPE ALGEBRAICO",
                     color = Color(0xFF00FF00),
-                    style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Monospace),
-                    modifier = Modifier.padding(6.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = {
-                    if (saludoVisible && nombre.isNotBlank()) {
-                        val rutaNombre = nombre.trim().replace("/", "_")
-                        navController.navigate("informacion/$rutaNombre")
-                    } else {
-                        navController.navigate("informacion")
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF00FF00),
-                    contentColor = Color.Black
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    "Empezar Aprendizaje",
-                    style = MaterialTheme.typography.bodyLarge.copy(
+                    style = MaterialTheme.typography.headlineMedium.copy(
                         fontFamily = FontFamily.Monospace
                     )
                 )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Image(
+                    painter = painterResource(id = R.drawable.ic_launcher),
+                    contentDescription = "Imagen",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(400.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = { Text("Ingresar nombre", fontSize = 22.sp, color = textColor) },
+                    placeholder = { Text("", fontSize = 22.sp, color = placeholderColor) },
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        color = textColor,
+                        fontSize = 24.sp
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .padding(horizontal = 4.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF00FF00),
+                        unfocusedBorderColor = borderColor,
+                        focusedLabelColor = Color(0xFF00FF00),
+                        unfocusedLabelColor = textColor,
+                        cursorColor = textColor,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Button(
+                    onClick = {
+                        if (nombre.isNotBlank()) saludoVisible = true
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF00FF00),
+                        contentColor = Color.Black
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Aceptar nombre", style = MaterialTheme.typography.bodyLarge)
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                if (saludoVisible) {
+                    Text(
+                        text = "¡Bienvenido, ${nombre.trim()}!",
+                        color = Color(0xFF00FF00),
+                        style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Monospace),
+                        modifier = Modifier.padding(6.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+                        if (saludoVisible && nombre.isNotBlank()) {
+                            val rutaNombre = nombre.trim().replace("/", "_")
+                            navController.navigate("informacion/$rutaNombre")
+                        } else {
+                            navController.navigate("informacion")
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF00FF00),
+                        contentColor = Color.Black
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        "Empezar Aprendizaje",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontFamily = FontFamily.Monospace
+                        )
+                    )
+                }
             }
+
+            Text(
+                text = "Creador: \"Angel Quidel\"",
+                color = Color.Gray,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(12.dp)
+            )
         }
     }
 }
@@ -338,7 +370,12 @@ fun PantallaSeleccionNivel(navController: NavHostController) {
 
             for (nivel in 1..5) {
                 Button(
-                    onClick = { navController.navigate("nivel$nivel") },
+                    onClick = {
+                        navController.navigate("nivel$nivel") {
+                            // Mantiene esta pantalla debajo del nivel
+                            popUpTo("seleccionarNivel") { inclusive = false }
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
@@ -357,7 +394,11 @@ fun PantallaSeleccionNivel(navController: NavHostController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { navController.navigateUp() },
+                onClick = {
+                    navController.navigate("informacion") {
+                        popUpTo("informacion") { inclusive = false }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF52EA00),
                     contentColor = Color.Black

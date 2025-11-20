@@ -89,10 +89,6 @@ fun PantallaNivel2(navController: NavHostController) {
                 fontFamily = FontFamily.Monospace
             )
 
-            // ---------------------------
-            // PREGUNTA
-            // ---------------------------
-
             if (mostrarPregunta) {
 
                 PreguntaMatematicaNivel2(
@@ -118,9 +114,6 @@ fun PantallaNivel2(navController: NavHostController) {
 
             } else if (!nivelCompletado) {
 
-                // ---------------------------
-                // CONTROLES DE MOVIMIENTO
-                // ---------------------------
                 ControlesMovimiento(
                     onMove = { dx, dy ->
                         val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
@@ -152,10 +145,6 @@ fun PantallaNivel2(navController: NavHostController) {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            // ---------------------------
-            // BOTONES CUANDO COMPLETA
-            // ---------------------------
 
             if (nivelCompletado) {
 
@@ -206,9 +195,6 @@ fun PantallaNivel2(navController: NavHostController) {
             }
         }
 
-        // ---------------------------
-        // BOTÓN VOLVER ABAJO (si no ha ganado)
-        // ---------------------------
         if (!nivelCompletado) {
 
             Box(
