@@ -196,38 +196,45 @@ fun PantallaNivel2(navController: NavHostController) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 100.dp),
+                        .padding(bottom = 180.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-
                     Button(
                         onClick = {
-                            mapa = generarMapaNivel2()
-                            jugadorPos = Pair(1, 1)
-                            tieneLlave = false
-                            pasoDesbloqueado = false
-                            mostrarPregunta = false
-                            mensaje = ""
                             navController.navigate("niveles") {
-                                popUpTo("nivel2") { inclusive = true }
+                                popUpTo("nivel4") { inclusive = true }
                             }
-                        }
-                    ) { Text("⬅️ Volver") }
-
-                    Button(
-                        onClick = { navController.navigate("nivel3") },
+                        },
+                        modifier = Modifier.padding(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = botonColor,
-                            contentColor = textoColor
+                            containerColor = Color(0xFF00FF00),
+                            contentColor = Color.Black
                         )
                     ) {
-                        Text("Siguiente ➡️", fontFamily = FontFamily.Monospace)
+                        Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
                     }
+
+                    if (nivelCompletado) {
+                        Button(
+                            onClick = {
+                                NivelState.mostrarInstruccionesNivel5 = true
+                                navController.navigate("nivel3")
+                            },
+                            modifier = Modifier.padding(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF00FF00),
+                                contentColor = Color.Black
+                            )
+                        ) {
+                            Text("Siguiente ➡️", fontFamily = FontFamily.Monospace)
+                        }
+                    }
+                }
+                Spacer(Modifier.height(50.dp))
                 }
             }
         }
     }
-}
 
 @Composable
 fun PreguntaMatematicaNivel2(textoColor: Color, isDark: Boolean, onRespuesta: (Boolean) -> Unit) {

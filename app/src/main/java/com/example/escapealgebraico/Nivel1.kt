@@ -155,7 +155,6 @@ fun PantallaNivel1(navController: NavHostController) {
 
             Spacer(Modifier.height(16.dp))
 
-            // BOTÓN VOLVER – SIEMPRE VISIBLE ABAJO, TAMAÑO NORMAL
             if (!nivelCompletado) {
                 Button(
                     onClick = {
@@ -182,32 +181,41 @@ fun PantallaNivel1(navController: NavHostController) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 100.dp),
+                        .padding(bottom = 180.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-
                     Button(
                         onClick = {
-                            mapa = generarMapaNivel1()
-                            jugadorPos = Pair(1, 1)
-                            llaveTomada = false
-                            mostrarPregunta = false
-                            puertaAbierta = false
-                            mensaje = ""
                             navController.navigate("niveles") {
                                 popUpTo("nivel1") { inclusive = true }
                             }
-                        }
-                    ) { Text("⬅️ Volver") }
-
-                    Button(
-                        onClick = { navController.navigate("nivel2") },
+                        },
+                        modifier = Modifier.padding(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = botonColor,
-                            contentColor = textoColor
+                            containerColor = Color(0xFF00FF00),
+                            contentColor = Color.Black
                         )
-                    ) { Text("Siguiente ➡️", fontFamily = FontFamily.Monospace) }
+                    ) {
+                        Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
+                    }
+
+                    if (nivelCompletado) {
+                        Button(
+                            onClick = {
+                                NivelState.mostrarInstruccionesNivel5 = true
+                                navController.navigate("nivel2")
+                            },
+                            modifier = Modifier.padding(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF00FF00),
+                                contentColor = Color.Black
+                            )
+                        ) {
+                            Text("Siguiente ➡️", fontFamily = FontFamily.Monospace)
+                        }
+                    }
                 }
+                Spacer(Modifier.height(50.dp))
             }
         }
     }
@@ -245,31 +253,53 @@ fun InstruccionesNivel1(
             )
 
             Text(
-                        text = """
-                🔹 En este nivel aprenderás sumas y restas básicas.
-        
-                🔹 Cuando tomes la llave, aparecerá una pregunta.
-        
-                ⭐ SUMAS
-                5 + 3 = 8
-                2 + 7 = 9
-        
-                ⭐ RESTAS
-                7 - 2 = 5      (restamos un número más pequeño del más grande)
-                2 - 7 = -5     (si restamos un número más grande del más pequeño, obtenemos un número negativo)
-                3 - 10 = -7    (los números negativos representan cantidades "por debajo de cero")
-        
-                🔹 Recuerda:
-                - Una resta negativa indica que hemos quitado más de lo que teníamos.
-                - Los números negativos se leen como "menos cinco", "menos siete", etc.
-        
-                🔹 Si fallas:
-                El nivel se reinicia.
-        
-                🔹 Si aciertas:
-                Obtienes la llave y la puerta se abrirá.
-            """.trimIndent(),
-                color = textoColor,
+                    text = """
+                    🔹 En este nivel aprenderás a trabajar con sumas y restas, incluyendo números positivos y negativos.
+                
+                    🔸 ¿Qué es sumar?
+                    Sumar es juntar cantidades.
+                    Ejemplos:
+                    5 + 3 = 8
+                    2 + 7 = 9
+                
+                    🔸 ¿Qué es restar?
+                    Restar es quitar una cantidad de otra.
+                    Ejemplos:
+                    7 - 2 = 5      (restamos un número más pequeño de uno más grande)
+                
+                    🔸 ¿Qué pasa si restamos un número más grande?
+                    Cuando quitamos más de lo que tenemos, el resultado es un número negativo.
+                    Ejemplos:
+                    2 - 7 = -5
+                    3 - 10 = -7
+                
+                    🔸 ¿Qué son los números negativos?
+                    Son valores "por debajo de cero".
+                    Se leen como “menos cinco”, “menos siete”, etc.
+                
+                    🔸 Sumar números negativos
+                    - Si ambos números son negativos, el resultado también es negativo:
+                      -4 + (-3) = -7
+                
+                    - Si un número es positivo y el otro negativo, se restan sus valores:
+                      8 + (-3) = 5
+                      4 + (-9) = -5
+                
+                    🔸 Restar números negativos
+                    Restar un número negativo es lo mismo que sumar su positivo:
+                      6 - (-2) = 8
+                      -3 - (-4) = 1
+                
+                    🔸 Resumen importante:
+                    - Quitar más de lo que tenemos => resultado negativo.
+                    - Restar un número negativo es sumar.
+                    - Los signos importan: + suma, – resta.
+                
+                    🔹 Cuando tomes la llave, aparecerá una pregunta.
+                    🔹 Si fallas: el nivel se reinicia.
+                    🔹 Si aciertas: obtienes la llave y la puerta se abrirá.
+                """.trimIndent(),
+                        color = textoColor,
                 textAlign = TextAlign.Left,
                 fontFamily = FontFamily.Monospace,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)

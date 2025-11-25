@@ -15,7 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -32,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.escapealgebraico.ui.theme.EscapeAlgebraicoTheme
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,9 +82,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PantallaInicio(navController: NavHostController) {
-    var nombre by rememberSaveable { mutableStateOf("") }
-    var saludoVisible by rememberSaveable { mutableStateOf(false) }
+fun PantallaInicio(navController: NavHostController, viewModel: MainViewModel = viewModel()) {
+    val nombre by viewModel.nombre.collectAsState()
+    val saludoVisible by viewModel.saludoVisible.collectAsState()
     val scale = remember { Animatable(0.5f) }
 
     val isDark = isSystemInDarkTheme()
@@ -146,7 +146,7 @@ fun PantallaInicio(navController: NavHostController) {
 
                 OutlinedTextField(
                     value = nombre,
-                    onValueChange = { nombre = it },
+                    onValueChange = { viewModel.onNombreChange(it) },
                     label = { Text("Ingresar nombre", fontSize = 22.sp, color = textColor) },
                     placeholder = { Text("", fontSize = 22.sp, color = placeholderColor) },
                     singleLine = true,
@@ -173,7 +173,7 @@ fun PantallaInicio(navController: NavHostController) {
 
                 Button(
                     onClick = {
-                        if (nombre.isNotBlank()) saludoVisible = true
+                        viewModel.onAceptarNombre()
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF00FF00),
