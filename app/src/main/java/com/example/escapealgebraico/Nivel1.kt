@@ -3,6 +3,8 @@ package com.example.escapealgebraico
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.escapealgebraico.utils.ProgressManager
@@ -18,49 +21,57 @@ import com.example.escapealgebraico.utils.ProgressManager
 fun PantallaNivel1(navController: NavHostController) {
 
     val context = LocalContext.current
-
     val isDark = isSystemInDarkTheme()
-    val fondoColor = if (isDark) Color(0xFF121212) else Color(0xFFD1F7C4)
+    val fondoColor = if (isDark) Color(0xFF121212) else Color(0xFFFFF3CD)
     val textoColor = if (isDark) Color.White else Color.Black
+    val botonColor = Color(0xFF00FF00)
 
     var mapa by remember { mutableStateOf(generarMapaNivel1()) }
     var jugadorPos by remember { mutableStateOf(Pair(1, 1)) }
-    var tieneLlave by remember { mutableStateOf(false) }
+    var llaveTomada by remember { mutableStateOf(false) }
     var mostrarPregunta by remember { mutableStateOf(false) }
-    var pasoDesbloqueado by remember { mutableStateOf(false) }
+    var puertaAbierta by remember { mutableStateOf(false) }
+    var mensaje by remember { mutableStateOf("") }
+    var mostrarInstrucciones by remember { mutableStateOf(true) }
     var nivelCompletado by remember { mutableStateOf(false) }
 
-    var mensaje by remember {
-        mutableStateOf("Encuentra la llave 🔑 para abrir la puerta 🚪")
-    }
-
-    Box(
+    Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(fondoColor)
-    ) {
+    ) { innerPadding ->
+
+        if (mostrarInstrucciones) {
+            InstruccionesNivel1(
+                isDark = isDark,
+                textoColor = textoColor,
+                fondoColor = fondoColor,
+                botonColor = botonColor,
+                onCerrar = { mostrarInstrucciones = false }
+            )
+            return@Scaffold
+        }
 
         Column(
             modifier = Modifier
+                .padding(innerPadding)
                 .fillMaxSize()
-                .padding(WindowInsets.statusBars.asPaddingValues()) // 👈 ESTA LÍNEA ARREGLA EL PROBLEMA
-                .padding(bottom = 88.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        )
-        {
+                .background(fondoColor)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Spacer(Modifier.height(16.dp))
 
             Text(
-                "🦖 Nivel 1: Consigue la llave y llega a la carne 🍖",
+                "🦖 Nivel 1: Sumas y Restas",
                 color = textoColor,
                 fontFamily = FontFamily.Monospace,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 24.dp) // antes era 16dp
+                style = MaterialTheme.typography.titleLarge
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(10.dp))
 
-            // Mapa (emojis)
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 for (y in mapa.indices) {
                     Row {
@@ -68,8 +79,8 @@ fun PantallaNivel1(navController: NavHostController) {
                             val emoji = when {
                                 jugadorPos.first == x && jugadorPos.second == y -> "🦖"
                                 mapa[y][x] == "W" -> "🧱"
-                                mapa[y][x] == "G" -> if (pasoDesbloqueado) "🍖" else "🚪"
-                                mapa[y][x] == "K" && !tieneLlave -> "🔑"
+                                mapa[y][x] == "G" -> if (puertaAbierta) "🍖" else "🚪"
+                                mapa[y][x] == "K" -> "🔑"
                                 else -> "🟩"
                             }
                             Text(
@@ -81,40 +92,30 @@ fun PantallaNivel1(navController: NavHostController) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(10.dp))
 
-            Text(
-                mensaje,
-                color = textoColor,
-                fontFamily = FontFamily.Monospace,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+            Text(mensaje, color = textoColor, fontFamily = FontFamily.Monospace)
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(16.dp))
 
             if (mostrarPregunta) {
-                PreguntaMatematica(
+                PreguntaMatematicaNivel1(
                     textoColor = textoColor,
                     isDark = isDark,
-                    onRespuesta = { correcta, operador ->
+                    onRespuesta = { correcta ->
                         if (correcta) {
-                            SoundManager.playCorrectSound(context)
-                            tieneLlave = true
-                            pasoDesbloqueado = true
+                            llaveTomada = true
                             mostrarPregunta = false
-                            mensaje = "✅ ¡Correcto! Has obtenido la llave"
+                            mensaje = "🔑 ¡Bien hecho! Obtuviste la llave."
+                            puertaAbierta = true
                         } else {
-                            SoundManager.playWrongSound(context)
-                            mensaje = if (operador == "+") {
-                                "❌ Casi lo logras. Revisa el ejemplo y vuelve a intentarlo."
-                            } else {
-                                "❌ No fue correcto. Repasa el ejemplo y prueba otra vez."
-                            }
-                            mostrarPregunta = false
-                            tieneLlave = false
-                            pasoDesbloqueado = false
-                            jugadorPos = Pair(1, 1)
                             mapa = generarMapaNivel1()
+                            jugadorPos = Pair(1, 1)
+                            llaveTomada = false
+                            puertaAbierta = false
+                            mostrarPregunta = false
+                            mensaje = "❌ Fallaste. Nivel reiniciado."
+                            mostrarInstrucciones = true
                         }
                     }
                 )
@@ -123,25 +124,29 @@ fun PantallaNivel1(navController: NavHostController) {
                 ControlesMovimiento(
                     onMove = { dx, dy ->
                         val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
+
                         if (puedeMoverse(mapa, nuevaPos)) {
                             jugadorPos = nuevaPos
                             val (x, y) = nuevaPos
 
                             when (mapa[y][x]) {
-                                "K" -> if (!tieneLlave) {
+
+                                "K" -> {
+                                    val nuevoMapa = mapa.map { it.toMutableList() }.toMutableList()
+                                    nuevoMapa[y][x] = " "
+                                    mapa = nuevoMapa
                                     mostrarPregunta = true
-                                    mensaje = "🔢 Resuelve la operación para conseguir la llave"
                                 }
 
                                 "G" -> {
-                                    if (pasoDesbloqueado) {
-                                        mensaje = "🎉 ¡Ganaste el Nivel 1!"
+                                    if (puertaAbierta) {
                                         nivelCompletado = true
+                                        mensaje = "🎉 ¡Ganaste el Nivel 1!"
 
                                         ProgressManager.guardarNivel(context, 2)
+
                                     } else {
-                                        mensaje =
-                                            "🚪 La puerta está bloqueada. Necesitas la llave 🔑"
+                                        mensaje = "🚪 Necesitas la llave."
                                     }
                                 }
                             }
@@ -150,56 +155,25 @@ fun PantallaNivel1(navController: NavHostController) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-        }
+            Spacer(Modifier.height(20.dp))
 
-        if (!nivelCompletado) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 32.dp)
-                    .align(Alignment.BottomCenter),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = {
-                        navController.navigate("niveles") {
-                            popUpTo("nivel1") { inclusive = true }
-                        }
-                    },
-                    modifier = Modifier.height(48.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                ) {
-                    Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
-                }
-            }
-
-        } else {
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 32.dp)
-                    .align(Alignment.BottomCenter),
-                contentAlignment = Alignment.Center
-            ) {
+            if (nivelCompletado) {
                 Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 50.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
+
                     Button(
                         onClick = {
                             navController.navigate("niveles") {
                                 popUpTo("nivel1") { inclusive = true }
                             }
                         },
-                        modifier = Modifier.padding(end = 16.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF00FF00),
-                            contentColor = Color.Black
+                            containerColor = botonColor,
+                            contentColor = textoColor
                         )
                     ) {
                         Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
@@ -208,73 +182,158 @@ fun PantallaNivel1(navController: NavHostController) {
                     Button(
                         onClick = { navController.navigate("nivel2") },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF00FF00),
-                            contentColor = Color.Black
+                            containerColor = botonColor,
+                            contentColor = textoColor
                         )
                     ) {
-                        Text("Siguiente ➡️", fontFamily = FontFamily.Monospace)
+                        Text("➡️ Siguiente", fontFamily = FontFamily.Monospace)
                     }
                 }
             }
         }
     }
 }
+@Composable
+fun InstruccionesNivel1(
+    isDark: Boolean,
+    textoColor: Color,
+    fondoColor: Color,
+    botonColor: Color,
+    onCerrar: () -> Unit
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(fondoColor)
+    ) {
+
+        // CONTENIDO SCROLLEABLE
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 90.dp) // deja espacio para el botón
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+                "📘 Instrucciones del Nivel 1",
+                color = textoColor,
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(16.dp)
+            )
+
+            Text(
+                text = """
+                    🔹 En este nivel aprenderás sumas y restas básicas.
+
+                    🔹 Cuando tomes la llave, aparecerá una pregunta.
+
+                    ⭐ SUMAS
+                    Ejemplos:
+                    • 5 + 3 = 8
+                    • 2 + 7 = 9
+
+                    ⭐ RESTAS
+                    • 7 - 2 = 5  
+                    • 2 - 7 = -5  (resultado negativo)
+                    • 3 - 10 = -7
+
+                    🔹 Los números negativos aparecen cuando restas
+                       un número más grande a uno más pequeño.
+
+                    🔹 Si fallas:
+                        • El nivel se reinicia  
+                        • Debes volver a intentar  
+
+                    🔹 Si aciertas:
+                        • Obtienes la llave  
+                        • La puerta se abrirá  
+                """.trimIndent(),
+                color = textoColor,
+                textAlign = TextAlign.Left,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        // BOTÓN FIJO ABAJO
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Button(
+                onClick = onCerrar,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = botonColor,
+                    contentColor = textoColor
+                ),
+                modifier = Modifier.height(48.dp)
+            ) {
+                Text("¡Jugar!", fontFamily = FontFamily.Monospace)
+            }
+        }
+    }
+}
 
 @Composable
-fun PreguntaMatematica(
-    onRespuesta: (Boolean, String) -> Unit,
-    textoColor: Color,
-    isDark: Boolean
-) {
-    val operador = if ((0..1).random() == 0) "+" else "-"
-    val a = (1..10).random()
-    val b = (1..10).random()
-    val correcta = if (operador == "+") a + b else a - b
-    val pregunta = "¿Cuánto es $a $operador $b?"
+fun PreguntaMatematicaNivel1(textoColor: Color, isDark: Boolean, onRespuesta: (Boolean) -> Unit) {
 
-    val ejemploA = (3..9).random()
-    val ejemploB = (1..5).random()
-    val ejemploTexto =
-        if (operador == "+")
-            "✨ Imagina que tienes $ejemploA dulces y te dan $ejemploB más."
-        else
-            "🍎 Imagina que tienes $ejemploA manzanas y te quitan $ejemploB."
-    val ejemploResultado =
-        if (operador == "+") ejemploA + ejemploB else ejemploA - ejemploB
+    val operadores = listOf("+", "-")
 
-    // Opciones: mantengo el tamaño original (no fillMaxWidth), con padding
-    val opciones = listOf(correcta, correcta + 1, correcta - 1).shuffled()
+    fun generarPregunta(): Triple<Int, Int, String> {
+        val a = (1..20).random()
+        val b = (1..20).random()
+        val op = operadores.random()
+        return Triple(a, b, op)
+    }
+
+    val (a, b, op) = generarPregunta()
+
+    val resultadoCorrecto = when (op) {
+        "+" -> a + b
+        "-" -> a - b
+        else -> 0
+    }
+
+    val opciones = mutableSetOf(resultadoCorrecto)
+    while (opciones.size < 3) opciones.add(resultadoCorrecto + listOf(-5, -3, -1, 1, 3, 5).random())
+
+    val listaOpciones = opciones.shuffled()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
     ) {
-        Text(pregunta, color = textoColor, fontFamily = FontFamily.Monospace)
-
-        Spacer(modifier = Modifier.height(6.dp))
-
         Text(
-            "$ejemploTexto\n➡️ Resultado del ejemplo: $ejemploResultado",
+            "Resuelve: $a $op $b",
             color = textoColor,
-            fontFamily = FontFamily.Monospace,
-            modifier = Modifier.padding(horizontal = 8.dp)
+            fontFamily = FontFamily.Monospace
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(Modifier.height(8.dp))
 
-        opciones.forEach { opcion ->
+        listaOpciones.forEach { opcion ->
             Button(
-                onClick = { onRespuesta(opcion == correcta, operador) },
+                onClick = { onRespuesta(opcion == resultadoCorrecto) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isDark) Color(0xFF4CAF50) else Color(0xFF00FF00),
                     contentColor = textoColor
                 ),
                 modifier = Modifier.padding(4.dp)
             ) {
-                Text(opcion.toString(), color = textoColor, fontFamily = FontFamily.Monospace)
+                Text(opcion.toString(), color = textoColor)
             }
         }
     }

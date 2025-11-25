@@ -42,16 +42,17 @@ fun PantallaNivel3(navController: NavHostController) {
     ) { innerPadding ->
 
         if (mostrarInstrucciones) {
+
             Column(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
                     .background(fondoColor)
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState()), // ✔ scroll activado
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(24.dp))
 
                 Text(
                     "📘 Instrucciones del Nivel 3",
@@ -63,11 +64,11 @@ fun PantallaNivel3(navController: NavHostController) {
 
                 Text(
                     text = """
-                    🔹 En este nivel debes obtener **2 llaves** para abrir la puerta.
+                    🔹 En este nivel debes obtener 2 llaves** para abrir la puerta.
                     
-                    🔹 Cada vez que tomes una llave, aparecerá una **pregunta matemática**.
+                    🔹 Cada vez que tomes una llave, aparecerá una **pregunta matemática.
 
-                    🔹 Son **operaciones combinadas**, recuerda la prioridad:
+                    🔹 Son operaciones combinadas**, recuerda la prioridad:
                         • Multiplicación y división primero  
                         • Luego suma y resta  
                         • Siempre de izquierda a derecha  
@@ -87,19 +88,30 @@ fun PantallaNivel3(navController: NavHostController) {
                     modifier = Modifier.padding(24.dp)
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(Modifier.height(24.dp))
 
-                Button(
-                    onClick = { mostrarInstrucciones = false },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = botonColor,
-                        contentColor = textoColor
-                    ),
-                    modifier = Modifier.padding(bottom = 40.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 40.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Estoy listo", fontFamily = FontFamily.Monospace)
+                    Button(
+                        onClick = {
+                            mostrarInstrucciones = false
+                            NivelState.mostrarInstruccionesNivel4 = false
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = botonColor,
+                            contentColor = textoColor
+                        ),
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Text("¡Entendido!", fontFamily = FontFamily.Monospace)
+                    }
                 }
             }
+
             return@Scaffold
         }
 
@@ -251,7 +263,6 @@ fun PantallaNivel3(navController: NavHostController) {
                     ) {
                         Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
                     }
-
 
                     Button(
                         onClick = {

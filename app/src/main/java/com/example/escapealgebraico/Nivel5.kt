@@ -3,6 +3,8 @@ package com.example.escapealgebraico
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,13 +40,14 @@ fun PantallaNivel5(navController: NavHostController) {
     var nivelCompletado by remember { mutableStateOf(false) }
 
     if (mostrarExplicacion) {
-        ExplicacionNivel5(
+        InstruccionesNivel5(
             textoColor = textoColor,
             fondoColor = fondoColor,
             botonColor = botonPrincipalColor,
-            onContinuar = { mostrarExplicacion = false }
+            onCerrar = { mostrarExplicacion = false }
         )
-    } else {
+    }
+    else {
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
@@ -202,28 +205,33 @@ fun PantallaNivel5(navController: NavHostController) {
     }
 }
 
+// InstruccionesNivel5 reestructurado con scroll + Box para centrar botón
 @Composable
-fun ExplicacionNivel5(
+fun InstruccionesNivel5(
     textoColor: Color,
     fondoColor: Color,
     botonColor: Color,
-    onContinuar: () -> Unit
+    onCerrar: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(fondoColor)
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Spacer(Modifier.height(24.dp))
+
         Text(
-            "📘 ¡Llegaste al desafío final!",
+            "🌟 Nivel 5: Potencias y Raíces 🌟",
             color = textoColor,
             fontFamily = FontFamily.Monospace,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
             "En este nivel usarás todo lo que aprendiste:\n\n" +
                     "👉 Primero se hacen las multiplicaciones y divisiones.\n" +
@@ -237,15 +245,23 @@ fun ExplicacionNivel5(
             fontFamily = FontFamily.Monospace,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
-        Spacer(modifier = Modifier.height(20.dp))
-        Button(
-            onClick = onContinuar,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = botonColor,
-                contentColor = textoColor
-            )
+        Spacer(Modifier.height(24.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 40.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Text("¡Estoy listo!", fontFamily = FontFamily.Monospace, color = textoColor)
+            Button(
+                onClick = onCerrar,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = botonColor,
+                    contentColor = textoColor
+                )
+            ) {
+                Text("¡Comenzar!", fontFamily = FontFamily.Monospace)
+            }
         }
     }
 }

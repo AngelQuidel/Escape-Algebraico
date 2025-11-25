@@ -409,7 +409,6 @@ fun PantallaSeleccionNivel(navController: NavHostController) {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun PantallaSeleccionNivelPreview() {

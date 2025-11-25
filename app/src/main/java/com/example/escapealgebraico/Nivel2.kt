@@ -1,7 +1,10 @@
 package com.example.escapealgebraico
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -9,10 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.escapealgebraico.utils.ProgressManager
-import androidx.compose.foundation.isSystemInDarkTheme
 
 @Composable
 fun PantallaNivel2(navController: NavHostController) {
@@ -22,6 +25,22 @@ fun PantallaNivel2(navController: NavHostController) {
     val isDark = isSystemInDarkTheme()
     val fondoColor = if (isDark) Color(0xFF121212) else Color(0xFFD1F7C4)
     val textoColor = if (isDark) Color.White else Color.Black
+    val botonColor = if (isDark) Color(0xFF4CAF50) else Color(0xFF00FF00)
+
+    var mostrarInstrucciones by remember { mutableStateOf(true) }
+
+    // 🔥 MUY IMPORTANTE: si está abierta la pantalla de instrucciones, muéstrala y DETÉN el nivel
+    if (mostrarInstrucciones) {
+        InstruccionesNivel2(
+            isDark = isDark,
+            textoColor = textoColor,
+            fondoColor = fondoColor,
+            botonColor = botonColor
+        ) {
+            mostrarInstrucciones = false
+        }
+        return
+    }
 
     var mapa by remember { mutableStateOf(generarMapaNivel2()) }
     var jugadorPos by remember { mutableStateOf(Pair(1, 1)) }
@@ -54,7 +73,7 @@ fun PantallaNivel2(navController: NavHostController) {
                 color = textoColor,
                 fontFamily = FontFamily.Monospace,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 24.dp) // antes era 16dp
+                modifier = Modifier.padding(top = 24.dp)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -96,12 +115,14 @@ fun PantallaNivel2(navController: NavHostController) {
                     textoColor = textoColor,
                     isDark = isDark,
                     onRespuesta = { correcta ->
+
                         if (correcta) {
                             SoundManager.playCorrectSound(context)
                             tieneLlave = true
                             pasoDesbloqueado = true
                             mostrarPregunta = false
                             mensaje = "✅ ¡Correcto! Obtuviste la llave del Nivel 2"
+
                         } else {
                             SoundManager.playWrongSound(context)
                             mostrarPregunta = false
@@ -117,6 +138,7 @@ fun PantallaNivel2(navController: NavHostController) {
 
                 ControlesMovimiento(
                     onMove = { dx, dy ->
+
                         val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
 
                         if (puedeMoverse(mapa, nuevaPos)) {
@@ -173,7 +195,7 @@ fun PantallaNivel2(navController: NavHostController) {
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF00FF00),
+                                containerColor = botonColor,
                                 contentColor = Color.Black
                             )
                         ) {
@@ -185,7 +207,7 @@ fun PantallaNivel2(navController: NavHostController) {
                                 navController.navigate("nivel3")
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF00FF00),
+                                containerColor = botonColor,
                                 contentColor = Color.Black
                             )
                         ) {
@@ -196,14 +218,12 @@ fun PantallaNivel2(navController: NavHostController) {
             }
         }
 
-        if (!nivelCompletado) {
-
-            Box(
+        if (nivelCompletado) {
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 32.dp),
-                contentAlignment = Alignment.Center
+                    .padding(bottom = 50.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
 
                 Button(
@@ -213,11 +233,21 @@ fun PantallaNivel2(navController: NavHostController) {
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF00FF00),
-                        contentColor = Color.Black
+                        containerColor = botonColor,
+                        contentColor = textoColor
                     )
                 ) {
                     Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
+                }
+
+                Button(
+                    onClick = { navController.navigate("nivel3") },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = botonColor,
+                        contentColor = textoColor
+                    )
+                ) {
+                    Text("➡️ Siguiente", fontFamily = FontFamily.Monospace)
                 }
             }
         }
@@ -234,7 +264,7 @@ fun PreguntaMatematicaNivel2(textoColor: Color, isDark: Boolean, onRespuesta: (B
 
     if (operador == "/") {
         b = (2..10).random()
-        a = b * (2..10).random() // resultado entero SIEMPRE
+        a = b * (2..10).random()
     }
 
     val correcta = if (operador == "*") a * b else a / b
@@ -243,7 +273,7 @@ fun PreguntaMatematicaNivel2(textoColor: Color, isDark: Boolean, onRespuesta: (B
     val explicacion = if (operador == "*") {
         "🧮 Multiplicar es sumar un número varias veces.\nEjemplo: 3 × 2 = 6 (3 + 3)."
     } else {
-        "🍎 Dividir es repartir por igual.\nEjemplo: 6 ÷ 3 = 2 (6 manzanas entre 3 personas)."
+        "🍎 Dividir es repartir en partes iguales.\nEjemplo: 6 ÷ 3 = 2 (6 manzanas entre 3 personas)."
     }
 
     val opciones = mutableSetOf(correcta)
@@ -272,6 +302,101 @@ fun PreguntaMatematicaNivel2(textoColor: Color, isDark: Boolean, onRespuesta: (B
                 modifier = Modifier.padding(4.dp)
             ) {
                 Text(opcion.toString(), color = textoColor)
+            }
+        }
+    }
+}
+
+@Composable
+fun InstruccionesNivel2(
+    isDark: Boolean,
+    textoColor: Color,
+    fondoColor: Color,
+    botonColor: Color,
+    onCerrar: () -> Unit
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(fondoColor)
+    ) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 90.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+                "📘 Instrucciones del Nivel 2",
+                color = textoColor,
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(16.dp)
+            )
+
+            Text(
+                text = """
+                    🔥 En este nivel trabajarás **multiplicación y división**.
+
+                    ⭐ MULTIPLICACIÓN  
+                    Es sumar un número varias veces.  
+                    Ejemplos:  
+                    • 3 × 2 = 6  
+                    • 5 × 4 = 20  
+
+                    ⭐ DIVISIÓN  
+                    Es repartir en partes iguales.  
+                    Ejemplos:  
+                    • 6 ÷ 3 = 2  
+                    • 12 ÷ 4 = 3  
+
+                    🔹 Cuando encuentres la llave tendrás que resolver
+                       una operación para obtenerla.
+
+                    🔹 Si respondes mal:
+                         • Pierdes la llave  
+                         • Vuelves al inicio  
+                         • La puerta se cierra  
+
+                    🔹 Si respondes bien:
+                         • Obtienes la llave  
+                         • La puerta se desbloquea  
+                         • Puedes avanzar a la meta  
+
+                    Recuerda:  
+                    ✔ Las divisiones SIEMPRE tendrán resultado entero.  
+                """.trimIndent(),
+                color = textoColor,
+                textAlign = TextAlign.Left,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Button(
+                onClick = onCerrar,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = botonColor,
+                    contentColor = textoColor
+                ),
+                modifier = Modifier.height(48.dp)
+            ) {
+                Text("¡Jugar!", fontFamily = FontFamily.Monospace)
             }
         }
     }
