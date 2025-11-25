@@ -294,7 +294,7 @@ fun PantallaNivel3(navController: NavHostController) {
                             navController.navigate("nivel4")
                         }
                     ) {
-                        Text("➡️ Siguiente", fontFamily = FontFamily.Monospace)
+                        Text("Siguiente ➡️", fontFamily = FontFamily.Monospace)
                     }
                 }
             }

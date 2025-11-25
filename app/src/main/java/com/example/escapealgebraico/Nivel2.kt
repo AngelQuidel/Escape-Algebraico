@@ -221,7 +221,7 @@ fun PantallaNivel2(navController: NavHostController) {
                             contentColor = textoColor
                         )
                     ) {
-                        Text("➡️ Siguiente", fontFamily = FontFamily.Monospace)
+                        Text("Siguiente ➡️", fontFamily = FontFamily.Monospace)
                     }
                 }
             }

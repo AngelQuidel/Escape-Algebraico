@@ -206,7 +206,7 @@ fun PantallaNivel1(navController: NavHostController) {
                             containerColor = botonColor,
                             contentColor = textoColor
                         )
-                    ) { Text("➡️ Siguiente", fontFamily = FontFamily.Monospace) }
+                    ) { Text("Siguiente ➡️", fontFamily = FontFamily.Monospace) }
                 }
             }
         }
@@ -245,26 +245,30 @@ fun InstruccionesNivel1(
             )
 
             Text(
-                text = """
-                    🔹 En este nivel aprenderás sumas y restas básicas.
-
-                    🔹 Cuando tomes la llave, aparecerá una pregunta.
-
-                    ⭐ SUMAS
-                    5 + 3 = 8
-                    2 + 7 = 9
-
-                    ⭐ RESTAS
-                    7 - 2 = 5
-                    2 - 7 = -5
-                    3 - 10 = -7
-
-                    🔹 Si fallas:
-                    El nivel se reinicia.
-
-                    🔹 Si aciertas:
-                    Obtienes la llave y la puerta se abrirá.
-                """.trimIndent(),
+                        text = """
+                🔹 En este nivel aprenderás sumas y restas básicas.
+        
+                🔹 Cuando tomes la llave, aparecerá una pregunta.
+        
+                ⭐ SUMAS
+                5 + 3 = 8
+                2 + 7 = 9
+        
+                ⭐ RESTAS
+                7 - 2 = 5      (restamos un número más pequeño del más grande)
+                2 - 7 = -5     (si restamos un número más grande del más pequeño, obtenemos un número negativo)
+                3 - 10 = -7    (los números negativos representan cantidades "por debajo de cero")
+        
+                🔹 Recuerda:
+                - Una resta negativa indica que hemos quitado más de lo que teníamos.
+                - Los números negativos se leen como "menos cinco", "menos siete", etc.
+        
+                🔹 Si fallas:
+                El nivel se reinicia.
+        
+                🔹 Si aciertas:
+                Obtienes la llave y la puerta se abrirá.
+            """.trimIndent(),
                 color = textoColor,
                 textAlign = TextAlign.Left,
                 fontFamily = FontFamily.Monospace,
