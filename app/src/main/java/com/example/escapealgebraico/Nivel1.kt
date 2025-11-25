@@ -72,6 +72,7 @@ fun PantallaNivel1(navController: NavHostController) {
 
             Spacer(Modifier.height(10.dp))
 
+            // MAPA
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 for (y in mapa.indices) {
                     Row {
@@ -98,17 +99,20 @@ fun PantallaNivel1(navController: NavHostController) {
 
             Spacer(Modifier.height(16.dp))
 
+            // PREGUNTA o CONTROLES
             if (mostrarPregunta) {
                 PreguntaMatematicaNivel1(
                     textoColor = textoColor,
                     isDark = isDark,
                     onRespuesta = { correcta ->
                         if (correcta) {
+                            SoundManager.playCorrectSound(context)
                             llaveTomada = true
                             mostrarPregunta = false
                             mensaje = "🔑 ¡Bien hecho! Obtuviste la llave."
                             puertaAbierta = true
                         } else {
+                            SoundManager.playWrongSound(context)
                             mapa = generarMapaNivel1()
                             jugadorPos = Pair(1, 1)
                             llaveTomada = false
@@ -119,6 +123,7 @@ fun PantallaNivel1(navController: NavHostController) {
                         }
                     }
                 )
+
             } else if (!nivelCompletado) {
                 ControlesMovimiento(
                     onMove = { dx, dy ->
@@ -135,67 +140,73 @@ fun PantallaNivel1(navController: NavHostController) {
                                     mapa = nuevoMapa
                                     mostrarPregunta = true
                                 }
-
                                 "G" -> {
                                     if (puertaAbierta) {
                                         nivelCompletado = true
                                         mensaje = "🎉 ¡Ganaste el Nivel 1!"
                                         ProgressManager.guardarNivel(context, 2)
-                                    } else {
-                                        mensaje = "🚪 Necesitas la llave."
-                                    }
+                                    } else mensaje = "🚪 Necesitas la llave."
                                 }
                             }
                         }
                     }
                 )
+            }
 
-                Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-                // BOTÓN VOLVER debajo de los controles
+            // BOTÓN VOLVER – SIEMPRE VISIBLE ABAJO, TAMAÑO NORMAL
+            if (!nivelCompletado) {
                 Button(
                     onClick = {
-                        navController.navigate("niveles") { popUpTo("nivel1") { inclusive = true } }
+                        mapa = generarMapaNivel1()
+                        jugadorPos = Pair(1, 1)
+                        llaveTomada = false
+                        mostrarPregunta = false
+                        puertaAbierta = false
+                        mensaje = ""
+                        navController.navigate("niveles") {
+                            popUpTo("nivel1") { inclusive = true }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = botonColor,
                         contentColor = textoColor
                     ),
                     modifier = Modifier.padding(8.dp)
-                ) {
-                    Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
-                }
+                ) { Text("⬅️ Volver", fontFamily = FontFamily.Monospace) }
             }
 
-            Spacer(Modifier.height(20.dp))
-
             if (nivelCompletado) {
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 200.dp),
+                        .padding(bottom = 100.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
+
                     Button(
                         onClick = {
-                            navController.navigate("niveles") { popUpTo("nivel1") { inclusive = true } }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = botonColor,
-                            contentColor = textoColor
-                        )
-                    ) {
-                        Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
-                    }
+                            mapa = generarMapaNivel1()
+                            jugadorPos = Pair(1, 1)
+                            llaveTomada = false
+                            mostrarPregunta = false
+                            puertaAbierta = false
+                            mensaje = ""
+                            navController.navigate("niveles") {
+                                popUpTo("nivel1") { inclusive = true }
+                            }
+                        }
+                    ) { Text("⬅️ Volver") }
+
                     Button(
                         onClick = { navController.navigate("nivel2") },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = botonColor,
                             contentColor = textoColor
                         )
-                    ) {
-                        Text("➡️ Siguiente", fontFamily = FontFamily.Monospace)
-                    }
+                    ) { Text("➡️ Siguiente", fontFamily = FontFamily.Monospace) }
                 }
             }
         }
@@ -210,13 +221,11 @@ fun InstruccionesNivel1(
     botonColor: Color,
     onCerrar: () -> Unit
 ) {
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(fondoColor)
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -311,6 +320,8 @@ fun PreguntaMatematicaNivel1(textoColor: Color, isDark: Boolean, onRespuesta: (B
 
     val listaOpciones = opciones.shuffled()
 
+    val context = LocalContext.current
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -327,7 +338,16 @@ fun PreguntaMatematicaNivel1(textoColor: Color, isDark: Boolean, onRespuesta: (B
 
         listaOpciones.forEach { opcion ->
             Button(
-                onClick = { onRespuesta(opcion == resultadoCorrecto) },
+                onClick = {
+                    // reproducir sonido y notificar al padre
+                    if (opcion == resultadoCorrecto) {
+                        SoundManager.playCorrectSound(context)
+                        onRespuesta(true)
+                    } else {
+                        SoundManager.playWrongSound(context)
+                        onRespuesta(false)
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isDark) Color(0xFF4CAF50) else Color(0xFF00FF00),
                     contentColor = textoColor

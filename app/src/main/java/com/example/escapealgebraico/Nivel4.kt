@@ -56,7 +56,7 @@ fun PantallaNivel4(navController: NavHostController) {
                 Spacer(Modifier.height(24.dp))
 
                 Text(
-                    "🌟 Nivel 4: Fracciones y Decimales 🌟",
+                    "🌟 Nivel 4: Decimales 🌟",
                     color = textoColor,
                     fontFamily = FontFamily.Monospace,
                     style = MaterialTheme.typography.titleLarge
@@ -235,7 +235,6 @@ fun PantallaNivel4(navController: NavHostController) {
 
             Spacer(Modifier.height(30.dp))
 
-            // Botones Volver y Siguiente
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

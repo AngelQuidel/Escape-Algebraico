@@ -230,7 +230,6 @@ fun PantallaNivel3(navController: NavHostController) {
 
                     Spacer(Modifier.height(20.dp))
 
-                    // Botón Volver mientras se juega
                     Button(
                         onClick = {
                             mapa = generarMapaNivel3()
@@ -257,7 +256,6 @@ fun PantallaNivel3(navController: NavHostController) {
                 }
             }
 
-            // Botones Volver y Siguiente cuando se completa el nivel
             if (nivelCompletado) {
                 Spacer(Modifier.height(20.dp))
                 Row(

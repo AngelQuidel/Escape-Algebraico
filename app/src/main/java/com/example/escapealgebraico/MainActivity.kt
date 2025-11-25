@@ -246,14 +246,15 @@ fun PantallaInformacion(navController: NavHostController, nombre: String) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
-                contentAlignment = Alignment.Center
+                    .padding(8.dp)
+                    .offset(y = (-20).dp),
+                        contentAlignment = Alignment.Center
             ) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Button(
+                Button(
                         onClick = { navController.popBackStack() },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF00FF00),

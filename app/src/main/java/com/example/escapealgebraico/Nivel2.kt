@@ -1,3 +1,5 @@
+// --- CÓDIGO NIVEL 2 ARREGLADO ---
+
 package com.example.escapealgebraico
 
 import androidx.compose.foundation.background
@@ -52,31 +54,31 @@ fun PantallaNivel2(navController: NavHostController) {
         mutableStateOf("Encuentra la llave 🔑 resolviendo multiplicación o división")
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(fondoColor)
-    ) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize().background(fondoColor)
+    ) { innerPadding ->
 
         Column(
             modifier = Modifier
+                .padding(innerPadding)
                 .fillMaxSize()
-                .padding(WindowInsets.statusBars.asPaddingValues())
-                .padding(bottom = 88.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+                .background(fondoColor)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            Spacer(Modifier.height(12.dp))
+
             Text(
-                "🔥Nivel 2: Multiplica o Divide para Avanzar",
+                "🔥 Nivel 2: Multiplicación y División",
                 color = textoColor,
                 fontFamily = FontFamily.Monospace,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 24.dp)
+                style = MaterialTheme.typography.titleLarge
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
 
+            // --- MAPA ---
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 for (y in mapa.indices) {
                     Row {
@@ -92,58 +94,53 @@ fun PantallaNivel2(navController: NavHostController) {
 
                             Text(
                                 text = emoji,
-                                fontSize = MaterialTheme.typography.headlineMedium.fontSize,
-                                color = textoColor
+                                fontSize = MaterialTheme.typography.headlineMedium.fontSize
                             )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
 
-            Text(
-                mensaje,
-                color = textoColor,
-                fontFamily = FontFamily.Monospace
-            )
+            Text(mensaje, color = textoColor, fontFamily = FontFamily.Monospace)
 
+            Spacer(Modifier.height(16.dp))
+
+            // --- Pregunta o controles ---
             if (mostrarPregunta) {
 
                 PreguntaMatematicaNivel2(
                     textoColor = textoColor,
-                    isDark = isDark,
-                    onRespuesta = { correcta ->
+                    isDark = isDark
+                ) { correcta ->
 
-                        if (correcta) {
-                            SoundManager.playCorrectSound(context)
-                            tieneLlave = true
-                            pasoDesbloqueado = true
-                            mostrarPregunta = false
-                            mensaje = "✅ ¡Correcto! Obtuviste la llave del Nivel 2"
-
-                        } else {
-                            SoundManager.playWrongSound(context)
-                            mostrarPregunta = false
-                            mensaje = "❌ Incorrecto. Regresaste al inicio."
-                            jugadorPos = Pair(1, 1)
-                            tieneLlave = false
-                            pasoDesbloqueado = false
-                        }
+                    if (correcta) {
+                        SoundManager.playCorrectSound(context)
+                        tieneLlave = true
+                        pasoDesbloqueado = true
+                        mostrarPregunta = false
+                        mensaje = "🔑 ¡Correcto! Obtuviste la llave."
+                    } else {
+                        SoundManager.playWrongSound(context)
+                        jugadorPos = Pair(1, 1)
+                        tieneLlave = false
+                        pasoDesbloqueado = false
+                        mostrarPregunta = false
+                        mensaje = "❌ Incorrecto. Regresaste al inicio."
                     }
-                )
+                }
 
             } else if (!nivelCompletado) {
 
                 ControlesMovimiento(
                     onMove = { dx, dy ->
 
-                        val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
+                        val nueva = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
 
-                        if (puedeMoverse(mapa, nuevaPos)) {
-
-                            jugadorPos = nuevaPos
-                            val (x, y) = nuevaPos
+                        if (puedeMoverse(mapa, nueva)) {
+                            jugadorPos = nueva
+                            val (x, y) = nueva
 
                             when (mapa[y][x]) {
 
@@ -156,20 +153,32 @@ fun PantallaNivel2(navController: NavHostController) {
                                     if (pasoDesbloqueado) {
                                         nivelCompletado = true
                                         mensaje = "🎉 ¡Has completado el Nivel 2!"
+                                        ProgressManager.guardarNivel(context, 3)
                                     } else {
-                                        mensaje = "🚪 La puerta está cerrada. Falta la llave."
+                                        mensaje = "🚪 La puerta está cerrada."
                                     }
                                 }
                             }
                         }
                     }
                 )
+            }
 
-                Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
+            // --- BOTÓN VOLVER (NORMAL, NO GRANDE) ---
+            if (!nivelCompletado) {
                 Button(
                     onClick = {
-                        navController.navigate("niveles") { popUpTo("nivel2") { inclusive = true } }
+                        mapa = generarMapaNivel2()
+                        jugadorPos = Pair(1, 1)
+                        tieneLlave = false
+                        pasoDesbloqueado = false
+                        mostrarPregunta = false
+                        mensaje = "Encuentra la llave 🔑 resolviendo multiplicación o división"
+                        navController.navigate("niveles") {
+                            popUpTo("nivel2") { inclusive = true }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = botonColor,
@@ -181,45 +190,38 @@ fun PantallaNivel2(navController: NavHostController) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
+            // --- BOTONES FINALES (SOLO 2, IGUAL QUE NIVEL 1) ---
             if (nivelCompletado) {
-
-                mostrarPregunta = false
-
-                ProgressManager.guardarNivel(LocalContext.current, 3)
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 160.dp),
+                        .padding(bottom = 100.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
 
                     Button(
                         onClick = {
+                            mapa = generarMapaNivel2()
+                            jugadorPos = Pair(1, 1)
+                            tieneLlave = false
+                            pasoDesbloqueado = false
+                            mostrarPregunta = false
+                            mensaje = ""
                             navController.navigate("niveles") {
                                 popUpTo("nivel2") { inclusive = true }
                             }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = botonColor,
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
-                    }
+                        }
+                    ) { Text("⬅️ Volver") }
 
                     Button(
-                        onClick = {
-                            navController.navigate("nivel3")
-                        },
+                        onClick = { navController.navigate("nivel3") },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = botonColor,
-                            contentColor = Color.Black
+                            contentColor = textoColor
                         )
                     ) {
-                        Text("Siguiente ➡️", fontFamily = FontFamily.Monospace)
+                        Text("➡️ Siguiente", fontFamily = FontFamily.Monospace)
                     }
                 }
             }
@@ -255,7 +257,9 @@ fun PreguntaMatematicaNivel2(textoColor: Color, isDark: Boolean, onRespuesta: (B
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth().padding(8.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
     ) {
 
         Text(explicacion, fontFamily = FontFamily.Monospace, color = textoColor)
