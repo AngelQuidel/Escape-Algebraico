@@ -35,7 +35,6 @@ fun PantallaNivel4(navController: NavHostController) {
     var pasoDesbloqueado by remember { mutableStateOf(false) }
     var mensaje by remember { mutableStateOf("") }
 
-    // Usamos el estado global NivelState para conservar la instrucción mostrada (igual que en otros niveles)
     var mostrarInstrucciones by remember { mutableStateOf(NivelState.mostrarInstruccionesNivel4) }
     var nivelCompletado by remember { mutableStateOf(false) }
 
@@ -45,7 +44,6 @@ fun PantallaNivel4(navController: NavHostController) {
             .background(fondoColor)
     ) { innerPadding ->
 
-        // Si estamos mostrando instrucciones -> composable de instrucciones (igual estructura que nivel 3)
         if (mostrarInstrucciones) {
 
             Column(
@@ -146,7 +144,6 @@ fun PantallaNivel4(navController: NavHostController) {
 
             Spacer(Modifier.height(10.dp))
 
-            // Mapa tipo matriz de emojis
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 for (y in mapa.indices) {
                     Row {
@@ -175,7 +172,6 @@ fun PantallaNivel4(navController: NavHostController) {
 
             Spacer(Modifier.height(16.dp))
 
-            // Si hay pregunta activa, mostrar composable de pregunta
             if (mostrarPregunta) {
                 PreguntaMatematicaNivel4(
                     textoColor = textoColor,
@@ -196,7 +192,6 @@ fun PantallaNivel4(navController: NavHostController) {
                         } else {
                             SoundManager.playWrongSound(context)
 
-                            // reiniciamos el nivel igual que en otros niveles
                             mapa = generarMapaNivel4()
                             jugadorPos = Pair(1, 1)
                             llavesObtenidas = 0
@@ -205,7 +200,6 @@ fun PantallaNivel4(navController: NavHostController) {
                             mostrarPregunta = false
                             mensaje = "❌ Fallaste. Inténtalo otra vez."
 
-                            // volvemos a mostrar instrucciones (si así lo quieres)
                             mostrarInstrucciones = true
                             NivelState.mostrarInstruccionesNivel4 = true
                         }
@@ -224,7 +218,7 @@ fun PantallaNivel4(navController: NavHostController) {
 
                                 when (mapa[y][x]) {
                                     "K" -> {
-                                        // quitar la llave del mapa y mostrar pregunta
+
                                         val nuevoMapa = mapa.map { it.toMutableList() }.toMutableList()
                                         nuevoMapa[y][x] = " "
                                         mapa = nuevoMapa
@@ -249,7 +243,7 @@ fun PantallaNivel4(navController: NavHostController) {
 
             Spacer(Modifier.height(30.dp))
 
-            // Botones volver / siguiente (si completo)
+
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -258,7 +252,7 @@ fun PantallaNivel4(navController: NavHostController) {
 
                 Button(
                     onClick = {
-                        // navegamos a la selección de niveles y dejamos el back stack limpio
+
                         navController.navigate("niveles") {
                             popUpTo("nivel4") { inclusive = true }
                         }
@@ -294,14 +288,12 @@ fun PantallaNivel4(navController: NavHostController) {
     }
 }
 
-// ---------------------- PREGUNTA NIVEL 4 ----------------------
-
 @Composable
 fun PreguntaMatematicaNivel4(textoColor: Color, isDark: Boolean, onRespuesta: (Boolean) -> Unit) {
     val operadores = listOf("+", "-", "×", "÷")
 
     fun numeroSimple(): Double {
-        // devolver número entero o con .5 para variar
+
         return if ((1..2).random() == 1) {
             (1..20).random().toDouble()
         } else {
@@ -310,17 +302,15 @@ fun PreguntaMatematicaNivel4(textoColor: Color, isDark: Boolean, onRespuesta: (B
     }
 
     fun divisionSimple(): Pair<Double, Double> {
-        // devolvemos una división con resultado exacto usando enteros para evitar infinitos repetidos
+
         val b = (1..10).random()
         val a = b * (1..10).random()
         return Pair(a.toDouble(), b.toDouble())
     }
 
-    // generamos 4 números y 3 operadores
     val nums = MutableList(4) { numeroSimple() }
     val ops = List(3) { operadores.random() }
 
-    // si hay división, forzamos pares para evitar divisiones raras (pero aceptamos decimales)
     for (i in ops.indices) {
         if (ops[i] == "÷") {
             val (a, b) = divisionSimple()
@@ -331,7 +321,6 @@ fun PreguntaMatematicaNivel4(textoColor: Color, isDark: Boolean, onRespuesta: (B
 
     val expresion = "${nums[0]} ${ops[0]} ${nums[1]} ${ops[1]} ${nums[2]} ${ops[2]} ${nums[3]}"
 
-    // función que evalúa respetando prioridad y redondea a 1 decimal
     fun calcularResultado(): Double {
         val lista = mutableListOf<Any>()
         for (i in nums.indices) {
@@ -349,7 +338,7 @@ fun PreguntaMatematicaNivel4(textoColor: Color, isDark: Boolean, onRespuesta: (B
                 lista[i - 1] = resultado
                 lista.removeAt(i)
                 lista.removeAt(i)
-                i-- // retrocedemos para revisar posibles multiplicaciones encadenadas
+                i--
             }
             i++
         }
@@ -366,14 +355,12 @@ fun PreguntaMatematicaNivel4(textoColor: Color, isDark: Boolean, onRespuesta: (B
             i += 2
         }
 
-        // redondear al primer decimal
         return (round(resultado * 10) / 10.0)
     }
 
     val resultadoCorrecto = calcularResultado()
     val opciones = mutableSetOf(resultadoCorrecto)
 
-    // generamos alternativas cercanas (con 1 decimal)
     while (opciones.size < 3) {
         val offset = listOf(-1.0, -0.5, 0.5, 1.0).random()
         opciones.add(round((resultadoCorrecto + offset) * 10) / 10.0)

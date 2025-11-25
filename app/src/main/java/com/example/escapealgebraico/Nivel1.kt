@@ -208,11 +208,10 @@ fun InstruccionesNivel1(
             .background(fondoColor)
     ) {
 
-        // CONTENIDO SCROLLEABLE
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 90.dp) // deja espacio para el botón
+                .padding(bottom = 90.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -263,7 +262,6 @@ fun InstruccionesNivel1(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // BOTÓN FIJO ABAJO
         Box(
             modifier = Modifier
                 .fillMaxWidth()

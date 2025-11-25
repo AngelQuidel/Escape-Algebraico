@@ -48,7 +48,7 @@ fun PantallaNivel3(navController: NavHostController) {
                     .padding(innerPadding)
                     .fillMaxSize()
                     .background(fondoColor)
-                    .verticalScroll(rememberScrollState()), // ✔ scroll activado
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 

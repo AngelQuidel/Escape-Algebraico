@@ -29,7 +29,6 @@ fun PantallaNivel2(navController: NavHostController) {
 
     var mostrarInstrucciones by remember { mutableStateOf(true) }
 
-    // 🔥 MUY IMPORTANTE: si está abierta la pantalla de instrucciones, muéstrala y DETÉN el nivel
     if (mostrarInstrucciones) {
         InstruccionesNivel2(
             isDark = isDark,

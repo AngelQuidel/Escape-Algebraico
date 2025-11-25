@@ -205,7 +205,6 @@ fun PantallaNivel5(navController: NavHostController) {
     }
 }
 
-// InstruccionesNivel5 reestructurado con scroll + Box para centrar botón
 @Composable
 fun InstruccionesNivel5(
     textoColor: Color,
