@@ -22,7 +22,6 @@ import kotlin.math.round
 fun PantallaNivel4(navController: NavHostController) {
 
     val context = LocalContext.current
-
     val isDark = isSystemInDarkTheme()
     val fondoColor = if (isDark) Color(0xFF121212) else Color(0xFFD1F7C4)
     val textoColor = if (isDark) Color.White else Color.Black
@@ -34,7 +33,6 @@ fun PantallaNivel4(navController: NavHostController) {
     var mostrarPregunta by remember { mutableStateOf(false) }
     var pasoDesbloqueado by remember { mutableStateOf(false) }
     var mensaje by remember { mutableStateOf("") }
-
     var mostrarInstrucciones by remember { mutableStateOf(NivelState.mostrarInstruccionesNivel4) }
     var nivelCompletado by remember { mutableStateOf(false) }
 
@@ -44,14 +42,14 @@ fun PantallaNivel4(navController: NavHostController) {
             .background(fondoColor)
     ) { innerPadding ->
 
+        // Instrucciones del nivel
         if (mostrarInstrucciones) {
-
             Column(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
                     .background(fondoColor)
-                    .verticalScroll(rememberScrollState()), // ✔ scroll activado
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -83,7 +81,7 @@ fun PantallaNivel4(navController: NavHostController) {
                         Si la respuesta tiene muchos decimales, quédate solo con uno.  
                         Ejemplo: 6.3333 → 6.3
                         
-                        ✨Ejemplo resuelto paso a paso:**  
+                        ✨Ejemplo resuelto paso a paso:  
                         Operación: 1.5 + 2 ÷ 4 × 3
                         
                         1️⃣ Primero 2 ÷ 4 = 0.5  
@@ -124,12 +122,13 @@ fun PantallaNivel4(navController: NavHostController) {
             return@Scaffold
         }
 
+        // Mapa del juego
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
                 .background(fondoColor)
-                .verticalScroll(rememberScrollState()), // scroll por si la pantalla es pequeña
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -172,12 +171,12 @@ fun PantallaNivel4(navController: NavHostController) {
 
             Spacer(Modifier.height(16.dp))
 
+            // Pregunta matemática
             if (mostrarPregunta) {
                 PreguntaMatematicaNivel4(
                     textoColor = textoColor,
                     isDark = isDark,
                     onRespuesta = { correcta ->
-
                         if (correcta) {
                             SoundManager.playCorrectSound(context)
                             llavesObtenidas++
@@ -191,68 +190,60 @@ fun PantallaNivel4(navController: NavHostController) {
 
                         } else {
                             SoundManager.playWrongSound(context)
-
                             mapa = generarMapaNivel4()
                             jugadorPos = Pair(1, 1)
                             llavesObtenidas = 0
                             pasoDesbloqueado = false
-
                             mostrarPregunta = false
                             mensaje = "❌ Fallaste. Inténtalo otra vez."
-
                             mostrarInstrucciones = true
                             NivelState.mostrarInstruccionesNivel4 = true
                         }
                     }
                 )
-            } else {
+            } else if (!nivelCompletado) {
+                ControlesMovimiento(
+                    onMove = { dx, dy ->
+                        val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
 
-                if (!nivelCompletado) {
-                    ControlesMovimiento(
-                        onMove = { dx, dy ->
-                            val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
+                        if (puedeMoverse(mapa, nuevaPos)) {
+                            jugadorPos = nuevaPos
+                            val (x, y) = nuevaPos
 
-                            if (puedeMoverse(mapa, nuevaPos)) {
-                                jugadorPos = nuevaPos
-                                val (x, y) = nuevaPos
+                            when (mapa[y][x]) {
+                                "K" -> {
+                                    val nuevoMapa = mapa.map { it.toMutableList() }.toMutableList()
+                                    nuevoMapa[y][x] = " "
+                                    mapa = nuevoMapa
+                                    mostrarPregunta = true
+                                }
 
-                                when (mapa[y][x]) {
-                                    "K" -> {
-
-                                        val nuevoMapa = mapa.map { it.toMutableList() }.toMutableList()
-                                        nuevoMapa[y][x] = " "
-                                        mapa = nuevoMapa
-                                        mostrarPregunta = true
-                                    }
-
-                                    "G" -> {
-                                        if (pasoDesbloqueado) {
-                                            mensaje = "🎉 ¡Nivel 4 completado! 🍖"
-                                            nivelCompletado = true
-                                            ProgressManager.guardarNivel(context, 5)
-                                        } else {
-                                            mensaje = "🚪 La puerta sigue cerrada."
-                                        }
+                                "G" -> {
+                                    if (pasoDesbloqueado) {
+                                        mensaje = "🎉 ¡Nivel 4 completado! 🍖"
+                                        nivelCompletado = true
+                                        ProgressManager.guardarNivel(context, 5)
+                                    } else {
+                                        mensaje = "🚪 La puerta sigue cerrada."
                                     }
                                 }
                             }
                         }
-                    )
-                }
+                    }
+                )
             }
 
             Spacer(Modifier.height(30.dp))
 
-
+            // Botones Volver y Siguiente
             Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 180.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-
                 Button(
                     onClick = {
-
                         navController.navigate("niveles") {
                             popUpTo("nivel4") { inclusive = true }
                         }
@@ -267,7 +258,6 @@ fun PantallaNivel4(navController: NavHostController) {
                 }
 
                 if (nivelCompletado) {
-
                     Button(
                         onClick = {
                             NivelState.mostrarInstruccionesNivel5 = true
@@ -292,17 +282,9 @@ fun PantallaNivel4(navController: NavHostController) {
 fun PreguntaMatematicaNivel4(textoColor: Color, isDark: Boolean, onRespuesta: (Boolean) -> Unit) {
     val operadores = listOf("+", "-", "×", "÷")
 
-    fun numeroSimple(): Double {
-
-        return if ((1..2).random() == 1) {
-            (1..20).random().toDouble()
-        } else {
-            ((1..20).random() + 0.5)
-        }
-    }
+    fun numeroSimple(): Double = if ((1..2).random() == 1) (1..20).random().toDouble() else ((1..20).random() + 0.5)
 
     fun divisionSimple(): Pair<Double, Double> {
-
         val b = (1..10).random()
         val a = b * (1..10).random()
         return Pair(a.toDouble(), b.toDouble())
@@ -311,12 +293,10 @@ fun PreguntaMatematicaNivel4(textoColor: Color, isDark: Boolean, onRespuesta: (B
     val nums = MutableList(4) { numeroSimple() }
     val ops = List(3) { operadores.random() }
 
-    for (i in ops.indices) {
-        if (ops[i] == "÷") {
-            val (a, b) = divisionSimple()
-            nums[i] = a
-            nums[i + 1] = b
-        }
+    for (i in ops.indices) if (ops[i] == "÷") {
+        val (a, b) = divisionSimple()
+        nums[i] = a
+        nums[i + 1] = b
     }
 
     val expresion = "${nums[0]} ${ops[0]} ${nums[1]} ${ops[1]} ${nums[2]} ${ops[2]} ${nums[3]}"
@@ -334,8 +314,8 @@ fun PreguntaMatematicaNivel4(textoColor: Color, isDark: Boolean, onRespuesta: (B
                 val op = lista[i] as String
                 val a = lista[i - 1] as Double
                 val b = lista[i + 1] as Double
-                val resultado = if (op == "×") a * b else a / b
-                lista[i - 1] = resultado
+                val result = if (op == "×") a * b else a / b
+                lista[i - 1] = result
                 lista.removeAt(i)
                 lista.removeAt(i)
                 i--
@@ -362,8 +342,9 @@ fun PreguntaMatematicaNivel4(textoColor: Color, isDark: Boolean, onRespuesta: (B
     val opciones = mutableSetOf(resultadoCorrecto)
 
     while (opciones.size < 3) {
-        val offset = listOf(-1.0, -0.5, 0.5, 1.0).random()
-        opciones.add(round((resultadoCorrecto + offset) * 10) / 10.0)
+        val offsets = listOf(-1.0, -0.5, -0.1, 0.1, 0.5, 1.0)
+        val nueva = round((resultadoCorrecto + offsets.random()) * 10) / 10.0
+        opciones.add(nueva)
     }
 
     val listaOpciones = opciones.shuffled()
@@ -371,7 +352,9 @@ fun PreguntaMatematicaNivel4(textoColor: Color, isDark: Boolean, onRespuesta: (B
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth().padding(8.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
     ) {
         Text("Resuelve: $expresion", color = textoColor, fontFamily = FontFamily.Monospace)
         Spacer(modifier = Modifier.height(4.dp))

@@ -46,8 +46,7 @@ fun PantallaNivel5(navController: NavHostController) {
             botonColor = botonPrincipalColor,
             onCerrar = { mostrarExplicacion = false }
         )
-    }
-    else {
+    } else {
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
@@ -59,7 +58,6 @@ fun PantallaNivel5(navController: NavHostController) {
                     .fillMaxSize()
                     .background(fondoColor)
             ) {
-
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -67,7 +65,6 @@ fun PantallaNivel5(navController: NavHostController) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-
                     Text(
                         "🌈 Nivel 5: ¡Desafío Final! 🔢",
                         color = textoColor,
@@ -100,8 +97,11 @@ fun PantallaNivel5(navController: NavHostController) {
                     )
                     Text(mensaje, color = textoColor, fontFamily = FontFamily.Monospace)
 
-                    if (mostrarPregunta) {
-                        val context = LocalContext.current
+                    if (nivelCompletado) {
+                        mostrarPregunta = false
+                    }
+
+                    if (mostrarPregunta && !nivelCompletado) {
                         PreguntaMatematicaNivel5(
                             textoColor = textoColor,
                             isDark = isDark,
@@ -127,7 +127,7 @@ fun PantallaNivel5(navController: NavHostController) {
                                 }
                             }
                         )
-                    } else {
+                    } else if (!nivelCompletado) {
                         Spacer(modifier = Modifier.height(8.dp))
                         ControlesMovimiento(
                             onMove = { dx, dy ->
@@ -181,6 +181,7 @@ fun PantallaNivel5(navController: NavHostController) {
 
                         if (nivelCompletado) {
                             ProgressManager.guardarNivel(context, 5)
+                            Spacer(modifier = Modifier.width(8.dp))
                             Button(
                                 onClick = {
                                     navController.navigate("pantallaFinal")
@@ -188,10 +189,10 @@ fun PantallaNivel5(navController: NavHostController) {
                                 modifier = Modifier.padding(8.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = botonFinalColor,
-                                    contentColor = Color.White
+                                    contentColor = Color.Black
                                 )
                             ) {
-                                Text("Finalizar", fontFamily = FontFamily.Monospace)
+                                Text("Tienes una sorpresa ➡️", fontFamily = FontFamily.Monospace)
                             }
                         } else {
                             Spacer(modifier = Modifier.width(8.dp))

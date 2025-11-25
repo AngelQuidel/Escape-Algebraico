@@ -164,89 +164,63 @@ fun PantallaNivel2(navController: NavHostController) {
                         }
                     }
                 )
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (nivelCompletado) {
-
-                ProgressManager.guardarNivel(LocalContext.current, 3)
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    contentAlignment = Alignment.BottomCenter
-                ) {
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 32.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Button(
-                            onClick = {
-                                navController.navigate("niveles") {
-                                    popUpTo("nivel2") { inclusive = true }
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = botonColor,
-                                contentColor = Color.Black
-                            )
-                        ) {
-                            Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
-                        }
-
-                        Button(
-                            onClick = {
-                                navController.navigate("nivel3")
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = botonColor,
-                                contentColor = Color.Black
-                            )
-                        ) {
-                            Text("Siguiente ➡️", fontFamily = FontFamily.Monospace)
-                        }
-                    }
-                }
-            }
-        }
-
-        if (nivelCompletado) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 50.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
+                Spacer(Modifier.height(16.dp))
 
                 Button(
                     onClick = {
-                        navController.navigate("niveles") {
-                            popUpTo("nivel2") { inclusive = true }
-                        }
+                        navController.navigate("niveles") { popUpTo("nivel2") { inclusive = true } }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = botonColor,
                         contentColor = textoColor
-                    )
+                    ),
+                    modifier = Modifier.padding(8.dp)
                 ) {
                     Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
                 }
+            }
 
-                Button(
-                    onClick = { navController.navigate("nivel3") },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = botonColor,
-                        contentColor = textoColor
-                    )
+            Spacer(modifier = Modifier.height(20.dp))
+
+            if (nivelCompletado) {
+
+                mostrarPregunta = false
+
+                ProgressManager.guardarNivel(LocalContext.current, 3)
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 160.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text("➡️ Siguiente", fontFamily = FontFamily.Monospace)
+
+                    Button(
+                        onClick = {
+                            navController.navigate("niveles") {
+                                popUpTo("nivel2") { inclusive = true }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = botonColor,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
+                    }
+
+                    Button(
+                        onClick = {
+                            navController.navigate("nivel3")
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = botonColor,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("Siguiente ➡️", fontFamily = FontFamily.Monospace)
+                    }
                 }
             }
         }

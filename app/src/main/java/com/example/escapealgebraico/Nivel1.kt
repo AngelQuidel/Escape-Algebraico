@@ -61,7 +61,7 @@ fun PantallaNivel1(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
 
             Text(
                 "🦖 Nivel 1: Sumas y Restas",
@@ -119,8 +119,7 @@ fun PantallaNivel1(navController: NavHostController) {
                         }
                     }
                 )
-            } else {
-
+            } else if (!nivelCompletado) {
                 ControlesMovimiento(
                     onMove = { dx, dy ->
                         val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
@@ -130,7 +129,6 @@ fun PantallaNivel1(navController: NavHostController) {
                             val (x, y) = nuevaPos
 
                             when (mapa[y][x]) {
-
                                 "K" -> {
                                     val nuevoMapa = mapa.map { it.toMutableList() }.toMutableList()
                                     nuevoMapa[y][x] = " "
@@ -142,9 +140,7 @@ fun PantallaNivel1(navController: NavHostController) {
                                     if (puertaAbierta) {
                                         nivelCompletado = true
                                         mensaje = "🎉 ¡Ganaste el Nivel 1!"
-
                                         ProgressManager.guardarNivel(context, 2)
-
                                     } else {
                                         mensaje = "🚪 Necesitas la llave."
                                     }
@@ -153,6 +149,22 @@ fun PantallaNivel1(navController: NavHostController) {
                         }
                     }
                 )
+
+                Spacer(Modifier.height(16.dp))
+
+                // BOTÓN VOLVER debajo de los controles
+                Button(
+                    onClick = {
+                        navController.navigate("niveles") { popUpTo("nivel1") { inclusive = true } }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = botonColor,
+                        contentColor = textoColor
+                    ),
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
+                }
             }
 
             Spacer(Modifier.height(20.dp))
@@ -161,15 +173,12 @@ fun PantallaNivel1(navController: NavHostController) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 50.dp),
+                        .padding(bottom = 200.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-
                     Button(
                         onClick = {
-                            navController.navigate("niveles") {
-                                popUpTo("nivel1") { inclusive = true }
-                            }
+                            navController.navigate("niveles") { popUpTo("nivel1") { inclusive = true } }
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = botonColor,
@@ -178,7 +187,6 @@ fun PantallaNivel1(navController: NavHostController) {
                     ) {
                         Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
                     }
-
                     Button(
                         onClick = { navController.navigate("nivel2") },
                         colors = ButtonDefaults.buttonColors(
@@ -193,6 +201,7 @@ fun PantallaNivel1(navController: NavHostController) {
         }
     }
 }
+
 @Composable
 fun InstruccionesNivel1(
     isDark: Boolean,
@@ -233,25 +242,19 @@ fun InstruccionesNivel1(
                     🔹 Cuando tomes la llave, aparecerá una pregunta.
 
                     ⭐ SUMAS
-                    Ejemplos:
-                    • 5 + 3 = 8
-                    • 2 + 7 = 9
+                    5 + 3 = 8
+                    2 + 7 = 9
 
                     ⭐ RESTAS
-                    • 7 - 2 = 5  
-                    • 2 - 7 = -5  (resultado negativo)
-                    • 3 - 10 = -7
-
-                    🔹 Los números negativos aparecen cuando restas
-                       un número más grande a uno más pequeño.
+                    7 - 2 = 5
+                    2 - 7 = -5
+                    3 - 10 = -7
 
                     🔹 Si fallas:
-                        • El nivel se reinicia  
-                        • Debes volver a intentar  
+                    El nivel se reinicia.
 
                     🔹 Si aciertas:
-                        • Obtienes la llave  
-                        • La puerta se abrirá  
+                    Obtienes la llave y la puerta se abrirá.
                 """.trimIndent(),
                 color = textoColor,
                 textAlign = TextAlign.Left,

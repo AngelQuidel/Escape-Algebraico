@@ -166,79 +166,105 @@ fun PantallaNivel3(navController: NavHostController) {
 
             Spacer(Modifier.height(16.dp))
 
-            if (mostrarPregunta) {
-                PreguntaMatematicaNivel3(
-                    textoColor = textoColor,
-                    isDark = isDark,
-                    onRespuesta = { correcta ->
-                        if (correcta) {
-                            SoundManager.playCorrectSound(context)
-                            llavesObtenidas++
-                            mostrarPregunta = false
+            // Controles solo si NO se completó el nivel
+            if (!nivelCompletado) {
+                if (mostrarPregunta) {
+                    PreguntaMatematicaNivel3(
+                        textoColor = textoColor,
+                        isDark = isDark,
+                        onRespuesta = { correcta ->
+                            if (correcta) {
+                                SoundManager.playCorrectSound(context)
+                                llavesObtenidas++
+                                mostrarPregunta = false
 
-                            mensaje = "🔑 ¡Correcto! Obtuviste una llave ($llavesObtenidas / 2)"
+                                mensaje = "🔑 ¡Correcto! Obtuviste una llave ($llavesObtenidas / 2)"
 
-                            if (llavesObtenidas == 2) {
-                                pasoDesbloqueado = true
-                                mensaje = "🔓 ¡La puerta está abierta!"
+                                if (llavesObtenidas == 2) {
+                                    pasoDesbloqueado = true
+                                    mensaje = "🔓 ¡La puerta está abierta!"
+                                }
+
+                            } else {
+                                SoundManager.playWrongSound(context)
+                                mapa = generarMapaNivel3()
+                                jugadorPos = Pair(1, 1)
+                                llavesObtenidas = 0
+                                pasoDesbloqueado = false
+                                mostrarPregunta = false
+                                mensaje = "❌ Fallaste. Nivel reiniciado."
+                                mostrarInstrucciones = true
                             }
+                        }
+                    )
+                } else {
+                    ControlesMovimiento(
+                        onMove = { dx, dy ->
+                            val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
 
-                        } else {
-                            SoundManager.playWrongSound(context)
+                            if (puedeMoverse(mapa, nuevaPos)) {
+                                jugadorPos = nuevaPos
+                                val (x, y) = nuevaPos
+
+                                when (mapa[y][x]) {
+                                    "K" -> {
+                                        val nuevoMapa = mapa.map { it.toMutableList() }.toMutableList()
+                                        nuevoMapa[y][x] = " "
+                                        mapa = nuevoMapa
+                                        mostrarPregunta = true
+                                    }
+
+                                    "G" -> {
+                                        if (pasoDesbloqueado) {
+                                            nivelCompletado = true
+                                            mensaje = "🎉 ¡Ganaste el Nivel 3! 🍖"
+                                            ProgressManager.guardarNivel(context, 4)
+                                        } else {
+                                            mensaje = "🚪 Necesitas 2 llaves."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    )
+
+                    Spacer(Modifier.height(20.dp))
+
+                    // Botón Volver mientras se juega
+                    Button(
+                        onClick = {
                             mapa = generarMapaNivel3()
                             jugadorPos = Pair(1, 1)
                             llavesObtenidas = 0
                             pasoDesbloqueado = false
                             mostrarPregunta = false
-                            mensaje = "❌ Fallaste. Nivel reiniciado."
+                            mensaje = ""
                             mostrarInstrucciones = true
-                        }
-                    }
-                )
-            } else {
 
-                ControlesMovimiento(
-                    onMove = { dx, dy ->
-                        val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
-
-                        if (puedeMoverse(mapa, nuevaPos)) {
-                            jugadorPos = nuevaPos
-                            val (x, y) = nuevaPos
-
-                            when (mapa[y][x]) {
-                                "K" -> {
-                                    val nuevoMapa = mapa.map { it.toMutableList() }.toMutableList()
-                                    nuevoMapa[y][x] = " "
-                                    mapa = nuevoMapa
-                                    mostrarPregunta = true
-                                }
-
-                                "G" -> {
-                                    if (pasoDesbloqueado) {
-                                        nivelCompletado = true
-                                        mensaje = "🎉 ¡Ganaste el Nivel 3! 🍖"
-
-                                        ProgressManager.guardarNivel(context, 4)
-
-                                    } else {
-                                        mensaje = "🚪 Necesitas 2 llaves."
-                                    }
-                                }
+                            navController.navigate("niveles") {
+                                popUpTo("nivel3") { inclusive = true }
                             }
-                        }
+
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = botonColor,
+                            contentColor = textoColor
+                        ),
+                        modifier = Modifier.padding(bottom = 50.dp)
+                    ) {
+                        Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
                     }
-                )
+                }
             }
 
-            Spacer(Modifier.height(20.dp))
-
+            // Botones Volver y Siguiente cuando se completa el nivel
             if (nivelCompletado) {
-
+                Spacer(Modifier.height(20.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .padding(bottom = 180.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
 
                     Button(
@@ -273,39 +299,13 @@ fun PantallaNivel3(navController: NavHostController) {
                         Text("➡️ Siguiente", fontFamily = FontFamily.Monospace)
                     }
                 }
-            } else {
-                Button(
-                    onClick = {
-
-                        mapa = generarMapaNivel3()
-                        jugadorPos = Pair(1, 1)
-                        llavesObtenidas = 0
-                        pasoDesbloqueado = false
-                        mostrarPregunta = false
-                        mensaje = ""
-                        mostrarInstrucciones = true
-
-                        navController.navigate("niveles") {
-                            popUpTo("nivel3") { inclusive = true }
-                        }
-
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = botonColor,
-                        contentColor = textoColor
-                    ),
-                    modifier = Modifier.padding(bottom = 50.dp)
-                ) {
-                    Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
-                }
-
             }
         }
     }
 }
 
+// Función para evaluar expresiones con prioridad
 fun evaluarConPrioridad(numsOriginal: List<Int>, opsOriginal: List<String>): Int {
-
     val nums = numsOriginal.map { it.toDouble() }.toMutableList()
     val ops = opsOriginal.toMutableList()
 
@@ -343,28 +343,18 @@ fun evaluarConPrioridad(numsOriginal: List<Int>, opsOriginal: List<String>): Int
 
 @Composable
 fun PreguntaMatematicaNivel3(textoColor: Color, isDark: Boolean, onRespuesta: (Boolean) -> Unit) {
-
     val operadoresSinDivision = listOf("+", "-", "×")
 
     fun generarPregunta(): Triple<List<Int>, List<String>, Int> {
-
         val divIndex = (0..2).random()
-
         val ops = MutableList(3) { "" }
-
         ops[divIndex] = "÷"
-
         for (i in 0..2) {
-            if (i != divIndex) {
-                ops[i] = operadoresSinDivision.random()
-            }
+            if (i != divIndex) ops[i] = operadoresSinDivision.random()
         }
-
         val nums = MutableList(4) { (2..20).random() }
-
         val divisor = (2..10).random()
         val resultadoEntero = (2..12).random()
-
         nums[divIndex] = divisor * resultadoEntero
         nums[divIndex + 1] = divisor
 
@@ -377,11 +367,7 @@ fun PreguntaMatematicaNivel3(textoColor: Color, isDark: Boolean, onRespuesta: (B
 
     val opciones = mutableSetOf(resultadoCorrecto)
     val desviaciones = listOf(-5, -3, -1, 1, 3, 5)
-
-    while (opciones.size < 3) {
-        opciones.add(resultadoCorrecto + desviaciones.random())
-    }
-
+    while (opciones.size < 3) opciones.add(resultadoCorrecto + desviaciones.random())
     val listaOpciones = opciones.shuffled()
 
     Column(
