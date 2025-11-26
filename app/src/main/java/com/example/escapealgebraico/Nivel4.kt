@@ -1,5 +1,7 @@
 package com.example.escapealgebraico
 
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -14,6 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.escapealgebraico.utils.ProgressManager
 import kotlin.math.round
@@ -25,7 +29,6 @@ fun PantallaNivel4(navController: NavHostController) {
     val isDark = isSystemInDarkTheme()
     val fondoColor = if (isDark) Color(0xFF121212) else Color(0xFFD1F7C4)
     val textoColor = if (isDark) Color.White else Color.Black
-    val botonColor = if (isDark) Color(0xFF4CAF50) else Color(0xFF00FF00)
 
     var mapa by remember { mutableStateOf(generarMapaNivel4()) }
     var jugadorPos by remember { mutableStateOf(Pair(1, 1)) }
@@ -35,6 +38,10 @@ fun PantallaNivel4(navController: NavHostController) {
     var mensaje by remember { mutableStateOf("") }
     var mostrarInstrucciones by remember { mutableStateOf(NivelState.mostrarInstruccionesNivel4) }
     var nivelCompletado by remember { mutableStateOf(false) }
+    
+    // Sistema de Vidas
+    var vidas by remember { mutableStateOf(3) }
+    var intentoPregunta by remember { mutableStateOf(0) }
 
     Scaffold(
         modifier = Modifier
@@ -42,237 +49,338 @@ fun PantallaNivel4(navController: NavHostController) {
             .background(fondoColor)
     ) { innerPadding ->
 
-        // Instrucciones del nivel
         if (mostrarInstrucciones) {
+            InstruccionesNivel4(
+                isDark = isDark,
+                textoColor = textoColor,
+                fondoColor = fondoColor,
+                onCerrar = { mostrarInstrucciones = false }
+            )
+            return@Scaffold
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            // Botón Guardar Progreso (Arriba a la izquierda)
+            Button(
+                onClick = {
+                    ProgressManager.guardarNivel(context, 4)
+                    Toast.makeText(context, "Progreso guardado", Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(16.dp)
+                    .zIndex(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF000080), // Azul oscuro diferente
+                    contentColor = Color.White
+                ),
+                border = BorderStroke(2.dp, Color.Yellow)
+            ) {
+                Text("💾 Guardar", fontFamily = FontFamily.Monospace, fontSize = 14.sp)
+            }
+
+            // Vidas (Arriba a la derecha)
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .zIndex(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                repeat(3) { index ->
+                    Text(
+                        text = if (index < vidas) "❤️" else "💔",
+                        fontSize = 24.sp,
+                        modifier = Modifier.padding(horizontal = 2.dp)
+                    )
+                }
+            }
+
+            // Contenido con Scroll
             Column(
                 modifier = Modifier
-                    .padding(innerPadding)
                     .fillMaxSize()
                     .background(fondoColor)
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 80.dp, bottom = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Spacer(Modifier.height(24.dp))
-
                 Text(
-                    "🌟 Nivel 4: Decimales 🌟",
+                    "🧮 Nivel 4: Decimales 🔢",
                     color = textoColor,
                     fontFamily = FontFamily.Monospace,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    for (y in mapa.indices) {
+                        Row {
+                            for (x in mapa[y].indices) {
+                                val emoji = when {
+                                    jugadorPos.first == x && jugadorPos.second == y -> "🦖"
+                                    mapa[y][x] == "W" -> "🧱"
+                                    mapa[y][x] == "G" -> if (pasoDesbloqueado) "🍖" else "🚪"
+                                    mapa[y][x] == "K" -> "🔑"
+                                    else -> "🟩"
+                                }
+                                Text(
+                                    text = emoji,
+                                    fontSize = 24.sp // Compactamos el mapa
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Text(
+                    "Llaves obtenidas: $llavesObtenidas / 3",
+                    color = textoColor,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+
+                Text(
+                    mensaje, 
+                    color = textoColor, 
+                    fontFamily = FontFamily.Monospace,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
                 Spacer(Modifier.height(16.dp))
 
-                Text(
-                    """
-                        🧠 Instrucciones del nivel:
-                        
-                        En este nivel deberás resolver una operación matemática siguiendo el orden correcto de las operaciones.  
-                        Esto significa que no puedes resolverla de izquierda a derecha sin más, sino respetando estas reglas:
-                        
-                        🔹1. Multiplicaciones (×) y divisiones (÷) van primero.
-                        Se resuelven en el orden en que aparezcan, de izquierda a derecha.
-                        
-                        🔹2. Sumas (+) y restas (–) van después. 
-                        Una vez que las multiplicaciones y divisiones estén calculadas, continúas con estas operaciones.
-                        
-                        🔹3. Redondea el resultado final a un solo decimal.
-                        Si la respuesta tiene muchos decimales, quédate solo con uno.  
-                        Ejemplo: 6.3333 → 6.3
-                        
-                        ✨Ejemplo resuelto paso a paso:  
-                        Operación: 1.5 + 2 ÷ 4 × 3
-                        
-                        1️⃣ Primero 2 ÷ 4 = 0.5  
-                        2️⃣ Luego 0.5 × 3 = 1.5  
-                        3️⃣ Ahora sumas: 1.5 + 1.5 = 3.0
-                        
-                        ✔ Ese es el resultado final.
-                    """.trimIndent(),
-                    color = textoColor,
-                    fontFamily = FontFamily.Monospace,
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
+                // Pregunta matemática
+                if (!nivelCompletado) {
+                    if (mostrarPregunta) {
+                        key(intentoPregunta) {
+                            PreguntaMatematicaNivel4(
+                                textoColor = textoColor,
+                                isDark = isDark,
+                                onRespuesta = { correcta ->
+                                    if (correcta) {
+                                        SoundManager.playCorrectSound(context)
+                                        llavesObtenidas++
+                                        mensaje = "✅ ¡Bien! Obtuviste una llave ($llavesObtenidas/3)."
+                                        mostrarPregunta = false
 
-                Spacer(Modifier.height(24.dp))
+                                        if (llavesObtenidas >= 3) {
+                                            pasoDesbloqueado = true
+                                            mensaje = "🔓 ¡Puerta desbloqueada!"
+                                        }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 40.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+                                    } else {
+                                        SoundManager.playWrongSound(context)
+                                        vidas--
+                                        if (vidas <= 0) {
+                                            mapa = generarMapaNivel4()
+                                            jugadorPos = Pair(1, 1)
+                                            llavesObtenidas = 0
+                                            pasoDesbloqueado = false
+                                            mostrarPregunta = false
+                                            mensaje = "💔 ¡Sin vidas! Nivel reiniciado."
+                                            mostrarInstrucciones = true
+                                            vidas = 3
+                                            intentoPregunta = 0
+                                            NivelState.mostrarInstruccionesNivel4 = true
+                                        } else {
+                                            mensaje = "❌ Incorrecto. Pierdes 1 vida."
+                                            intentoPregunta++
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    } else {
+                        ControlesMovimiento(
+                            onMove = { dx, dy ->
+                                val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
+
+                                if (puedeMoverse(mapa, nuevaPos)) {
+                                    jugadorPos = nuevaPos
+                                    val (x, y) = nuevaPos
+
+                                    when (mapa[y][x]) {
+                                        "K" -> {
+                                            val nuevoMapa = mapa.map { it.toMutableList() }.toMutableList()
+                                            nuevoMapa[y][x] = " "
+                                            mapa = nuevoMapa
+                                            mostrarPregunta = true
+                                        }
+
+                                        "G" -> {
+                                            if (pasoDesbloqueado) {
+                                                mensaje = "🎉 ¡Nivel 4 completado! 🍖"
+                                                nivelCompletado = true
+                                                ProgressManager.guardarNivel(context, 5)
+                                            } else {
+                                                mensaje = "🚪 La puerta sigue cerrada."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+
+                if (!nivelCompletado && !mostrarPregunta) {
+                    Spacer(Modifier.height(16.dp))
                     Button(
                         onClick = {
-                            mostrarInstrucciones = false
-                            NivelState.mostrarInstruccionesNivel4 = false
+                            navController.navigate("niveles") {
+                                popUpTo("nivel4") { inclusive = true }
+                            }
                         },
+                        modifier = Modifier.padding(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = botonColor,
-                            contentColor = textoColor
+                            containerColor = Color(0xFF006400),
+                            contentColor = Color.Black
                         ),
-                        modifier = Modifier.height(48.dp)
+                        border = BorderStroke(2.dp, Color.Yellow),
+                        // Eliminado modificador duplicado
                     ) {
-                        Text("¡Entendido!", fontFamily = FontFamily.Monospace)
+                        Text("⬅️ Volver", fontFamily = FontFamily.Monospace, fontSize = 20.sp)
+                    }
+                }
+
+                if (nivelCompletado) {
+                    Spacer(Modifier.height(30.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 24.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Button(
+                            onClick = {
+                                navController.navigate("niveles") {
+                                    popUpTo("nivel4") { inclusive = true }
+                                }
+                            },
+                            modifier = Modifier.padding(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF006400),
+                                contentColor = Color.Black
+                            ),
+                            border = BorderStroke(2.dp, Color.Yellow)
+                        ) {
+                            Text("⬅️ Volver", fontFamily = FontFamily.Monospace, fontSize = 20.sp)
+                        }
+
+                        Button(
+                            onClick = {
+                                NivelState.mostrarInstruccionesNivel5 = true
+                                navController.navigate("nivel5")
+                            },
+                            modifier = Modifier.padding(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF006400),
+                                contentColor = Color.Black
+                            ),
+                            border = BorderStroke(2.dp, Color.Yellow)
+                        ) {
+                            Text("Siguiente ➡️", fontFamily = FontFamily.Monospace, fontSize = 20.sp)
+                        }
                     }
                 }
             }
-
-            return@Scaffold
         }
+    }
+}
 
-        // Mapa del juego
+@Composable
+fun InstruccionesNivel4(
+    isDark: Boolean,
+    textoColor: Color,
+    fondoColor: Color,
+    onCerrar: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(fondoColor)
+    ) {
         Column(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
-                .background(fondoColor)
+                .padding(bottom = 90.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                "🌟 Nivel 4: Decimales 🌟",
+                color = textoColor,
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(16.dp)
+            )
+
             Spacer(Modifier.height(16.dp))
 
             Text(
-                "🧮 Nivel 4: Decimales 🔢",
+                """
+                    🧠 Instrucciones del nivel:
+                    
+                    En este nivel deberás resolver una operación matemática siguiendo el orden correcto de las operaciones.  
+                    Esto significa que no puedes resolverla de izquierda a derecha sin más, sino respetando estas reglas:
+                    
+                    🔹1. Multiplicaciones (×) y divisiones (÷) van primero.
+                    Se resuelven en el orden en que aparezcan, de izquierda a derecha.
+                    
+                    🔹2. Sumas (+) y restas (–) van después. 
+                    Una vez que las multiplicaciones y divisiones estén calculadas, continúas con estas operaciones.
+                    
+                    🔹3. Redondea el resultado final a un solo decimal.
+                    Si la respuesta tiene muchos decimales, quédate solo con uno.  
+                    Ejemplo: 6.3333 → 6.3
+                    
+                    ✨Ejemplo resuelto paso a paso:  
+                    Operación: 1.5 + 2 ÷ 4 × 3
+                    
+                    1️⃣ Primero 2 ÷ 4 = 0.5  
+                    2️⃣ Luego 0.5 × 3 = 1.5  
+                    3️⃣ Ahora sumas: 1.5 + 1.5 = 3.0
+                    
+                    ✔ Ese es el resultado final.
+                """.trimIndent(),
                 color = textoColor,
                 fontFamily = FontFamily.Monospace,
-                style = MaterialTheme.typography.titleLarge
+                modifier = Modifier.padding(horizontal = 24.dp)
             )
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(24.dp))
+        }
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                for (y in mapa.indices) {
-                    Row {
-                        for (x in mapa[y].indices) {
-                            val emoji = when {
-                                jugadorPos.first == x && jugadorPos.second == y -> "🦖"
-                                mapa[y][x] == "W" -> "🧱"
-                                mapa[y][x] == "G" -> if (pasoDesbloqueado) "🍖" else "🚪"
-                                mapa[y][x] == "K" -> "🔑"
-                                else -> "🟩"
-                            }
-                            Text(text = emoji, fontSize = MaterialTheme.typography.titleLarge.fontSize)
-                        }
-                    }
-                }
-            }
-
-            Text(
-                "Llaves obtenidas: $llavesObtenidas / 3",
-                color = textoColor,
-                fontFamily = FontFamily.Monospace,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-
-            Text(mensaje, color = textoColor, fontFamily = FontFamily.Monospace)
-
-            Spacer(Modifier.height(16.dp))
-
-            // Pregunta matemática
-            if (mostrarPregunta) {
-                PreguntaMatematicaNivel4(
-                    textoColor = textoColor,
-                    isDark = isDark,
-                    onRespuesta = { correcta ->
-                        if (correcta) {
-                            SoundManager.playCorrectSound(context)
-                            llavesObtenidas++
-                            mensaje = "✅ ¡Bien! Obtuviste una llave ($llavesObtenidas/3)."
-                            mostrarPregunta = false
-
-                            if (llavesObtenidas >= 3) {
-                                pasoDesbloqueado = true
-                                mensaje = "🔓 ¡Puerta desbloqueada!"
-                            }
-
-                        } else {
-                            SoundManager.playWrongSound(context)
-                            mapa = generarMapaNivel4()
-                            jugadorPos = Pair(1, 1)
-                            llavesObtenidas = 0
-                            pasoDesbloqueado = false
-                            mostrarPregunta = false
-                            mensaje = "❌ Fallaste. Inténtalo otra vez."
-                            mostrarInstrucciones = true
-                            NivelState.mostrarInstruccionesNivel4 = true
-                        }
-                    }
-                )
-            } else if (!nivelCompletado) {
-                ControlesMovimiento(
-                    onMove = { dx, dy ->
-                        val nuevaPos = Pair(jugadorPos.first + dx, jugadorPos.second + dy)
-
-                        if (puedeMoverse(mapa, nuevaPos)) {
-                            jugadorPos = nuevaPos
-                            val (x, y) = nuevaPos
-
-                            when (mapa[y][x]) {
-                                "K" -> {
-                                    val nuevoMapa = mapa.map { it.toMutableList() }.toMutableList()
-                                    nuevoMapa[y][x] = " "
-                                    mapa = nuevoMapa
-                                    mostrarPregunta = true
-                                }
-
-                                "G" -> {
-                                    if (pasoDesbloqueado) {
-                                        mensaje = "🎉 ¡Nivel 4 completado! 🍖"
-                                        nivelCompletado = true
-                                        ProgressManager.guardarNivel(context, 5)
-                                    } else {
-                                        mensaje = "🚪 La puerta sigue cerrada."
-                                    }
-                                }
-                            }
-                        }
-                    }
-                )
-            }
-
-            Spacer(Modifier.height(30.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 180.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 40.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Button(
+                onClick = onCerrar,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF006400),
+                    contentColor = Color.Black
+                ),
+                border = BorderStroke(2.dp, Color.Yellow),
+                modifier = Modifier.height(48.dp)
             ) {
-                Button(
-                    onClick = {
-                        navController.navigate("niveles") {
-                            popUpTo("nivel4") { inclusive = true }
-                        }
-                    },
-                    modifier = Modifier.padding(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF00FF00),
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Text("⬅️ Volver", fontFamily = FontFamily.Monospace)
-                }
-
-                if (nivelCompletado) {
-                    Button(
-                        onClick = {
-                            NivelState.mostrarInstruccionesNivel5 = true
-                            navController.navigate("nivel5")
-                        },
-                        modifier = Modifier.padding(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF00FF00),
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Text("Siguiente ➡️", fontFamily = FontFamily.Monospace)
-                    }
-                }
+                Text("¡Jugar!", fontFamily = FontFamily.Monospace, fontSize = 20.sp)
             }
-            Spacer(Modifier.height(50.dp))
         }
     }
 }
@@ -364,12 +472,13 @@ fun PreguntaMatematicaNivel4(textoColor: Color, isDark: Boolean, onRespuesta: (B
             Button(
                 onClick = { onRespuesta(opcion == resultadoCorrecto) },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isDark) Color(0xFF4CAF50) else Color(0xFF00FF00),
-                    contentColor = textoColor
+                    containerColor = Color(0xFF006400),
+                    contentColor = Color.Black
                 ),
+                border = BorderStroke(2.dp, Color.Yellow),
                 modifier = Modifier.padding(4.dp)
             ) {
-                Text(opcion.toString(), color = textoColor)
+                Text(opcion.toString(), color = Color.Black, fontSize = 20.sp, fontFamily = FontFamily.Monospace)
             }
         }
     }

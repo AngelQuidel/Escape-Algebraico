@@ -1,5 +1,6 @@
 package com.example.escapealgebraico
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -9,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontFamily
 import androidx.navigation.NavHostController
 
@@ -80,9 +82,14 @@ fun PantallaIngresarNombre(navController: NavHostController) {
 
                         navController.navigate("seleccion/$nombre")
                     }
-                }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF006400),
+                    contentColor = Color.Black
+                ),
+                border = BorderStroke(2.dp, Color.Yellow)
             ) {
-                Text("Comenzar", fontFamily = FontFamily.Monospace)
+                Text("Comenzar", fontFamily = FontFamily.Monospace, fontSize = 20.sp)
             }
         }
     }

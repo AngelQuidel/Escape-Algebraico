@@ -1,6 +1,7 @@
 package com.example.escapealgebraico
 
 import android.content.Context
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -22,8 +23,6 @@ fun PantallaFinalFelicidades(navController: NavHostController, context: Context)
 
     val fondoColor = if (isDark) Color.Black else Color.White
     val textoColor = if (isDark) Color.White else Color.Black
-    val botonFondo = Color(0xFF4CAF50)
-    val botonTexto = if (isDark) Color.White else Color.Black
 
     Scaffold(
         modifier = Modifier
@@ -78,14 +77,15 @@ fun PantallaFinalFelicidades(navController: NavHostController, context: Context)
                     navController.navigate("inicio")
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = botonFondo,
-                    contentColor = botonTexto
-                )
+                    containerColor = Color(0xFF006400),
+                    contentColor = Color.Black
+                ),
+                border = BorderStroke(2.dp, Color.Yellow)
             ) {
                 Text(
                     "🏠 Volver al inicio",
                     fontFamily = FontFamily.Monospace,
-                    color = botonTexto,
+                    color = Color.Black,
                     fontSize = 20.sp
                 )
             }
